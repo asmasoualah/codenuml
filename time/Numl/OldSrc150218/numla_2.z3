@@ -1,5 +1,0 @@
-(declare-const a_563 Int)
-(assert (<= 9 (+ 9 1)))
-(assert (>= 19 (- (+ 9 1) -10)))
-(check-sat)
-(get-model)
