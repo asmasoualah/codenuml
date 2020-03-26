@@ -1,0 +1,222 @@
+
+\section{Programming with Types for Numerical Accuracy}
+\label{over}
+
+In this section, we present informally how our type system works
+throughout a programming sequence in our language, \texttt{Numl}.
+First of all, we use real 
+numbers  $\mathtt{r}\{s,u,p\}$ where $\mathsf{r}$
+is the value itself, and $\{s,u,p\}$ the format of $\mathsf{r}$.
+The format or a real number is made of a sign $s\in \mathsf{Sign}$ and integers 
+$u,p\in \mathsf{Int}$ such that $u$ is the unit in the first place of $\mathsf{r}$,
+written $\mathsf{ufp}(\mathsf{r})$ and $p$
+the precision.
+
+We have $\mathsf{Sign}=\{0,\oplus,\ominus,\top\}$ and $\mathsf{sign(r)}=0$ if $\mathsf{r}=0$,
+$\mathsf{sign(r)}=\oplus$ if $\mathsf{r}>0$ and $\mathsf{sign(r)}=\ominus$ if $\mathsf{r}<0$.
+The set $\mathsf{Sign}$ is equipped with the partial order relation $\prec\subseteq \mathsf{Sign}
+\times \mathsf{Sign}$ defined by $0\prec \oplus$, $0\prec \ominus$, $\oplus\prec \top$ and 
+$\ominus\prec \top$. 
+
+The $\mathsf{ufp}$ of a number $x$ is 
+\begin{equation}\label{equfp}
+\mathsf{ufp}(x) = \min \big\{ i\in \mathbb{N}\ :\ 2^{i+1} > x\big\} = \lfloor \log_2(x)\rfloor\enspace.
+\end{equation}
+
+The term $p$ defines the precision of $\mathsf{r}$. Let $\eps(\mathsf{r})$
+be the absolute error on $\mathsf{r}$, we assume that
+\begin{equation}
+\eps(\mathsf{r})< 2^{u-p+1}\enspace .
+\end{equation}
+The errors on the numerical constants arising in programs are specified by the user or determined by default by 
+the system. The errors on the computed values can be inferred by  propagation of the
+initial errors.
+Similarly to Equation (\ref{equfp}), we also define the
+ \textit{u}nit in the \textit{l}ast \textit{p}lace ($\mathsf{ulp}$) used later in this article.
+The $\mathsf{ulp}$ of a number of precision $p$ is defined by
+\begin{equation}
+ \mathsf{ulp}(x) = \mathsf{ufp}(x) - p+1\enspace .
+\end{equation}
+
+\begin{figure}[tb]
+\small
+\hrule
+\vspace{0.2cm}
+\centerline{
+\begin{tabular}{cccccccccccccccccc}
+&Format    &&& Name &&& $p$ &&& $e$ bits  &&& $e_{min}$ &&& $e_{max}$ & \\
+\hline
+&&&&&&&&&&&&&&&&&\\
+&Binary16  &&& Half precision            &&& 11  &&& 5              &&& $-14 $  &&& $+15$ &     \\
+&Binary32  &&& Single precision            &&& 24  &&& 8              &&& $-126 $  &&& $+127$ &     \\
+&Binary64  &&& Double precision           &&& 53  &&& 11             &&& $-1122 $  &&& $+1223$&     \\
+\hspace{0.05cm} & Binary128 &  \hspace{0.05cm}  &  \hspace{0.05cm}  & Quadruple precision            
+& \hspace{0.05cm}  &  \hspace{0.05cm}  &113  & \hspace{0.05cm} &  \hspace{0.05cm} & 15             
+& \hspace{0.05cm}  & \hspace{0.05cm} & $-16382 $  & \hspace{0.05cm}  & \hspace{0.05cm} & $+16383$ 
+&  \hspace{0.05cm}      \\
+\end{tabular}}\vspace{0.2cm}
+\hrule
+\normalsize
+\caption{\label{formats}Basic binary IEEE754  formats.}
+\end{figure}
+
+
+For example, the type of $1.234$ is $\F{+}{0}{53}$ since $\mathsf{ufp}(1.234)=0$ and since we assume that, 
+by default, the real
+numbers have the same precision than in the IEEE754 double precision floating-point format \cite{IEEE754} 
+(see Figure \ref{formats}). 
+Other formats may be specified by the programmer, as in the example below.
+Let us also mention that our type system is independent of a given computer arithmetic. The 
+interpreter only needs to implement the formats given by the type system, using floating-point numbers, fixed-point
+numbers \cite{MENTOR}, multiple precision numbers\footnote{\tt https://gmplib.org/}, etc
+in order to ensure that the finite precision operations are computed exactly.
+The special case of the IEEE754 floating-point arithmetic, which introduces additional
+errors due to the roundoff of the results of the operations is discussed in Section \ref{ieee}. 
+\begin{verbatim}
+> 1.234 ;;
+- : real{+,0,53} = 1.234000000000000
+
+> 1.234{4};;
+- : real{+,0,4} = 1.2
+\end{verbatim}
+Remark that in our implementation the type information is used by the pretty printer to display 
+only the correct digits of a number and a bound on the roundoff error.
+
+Note that
+accuracy is not a property of a number but  a number that states how closely a particular floating-point number
+matches some ideal true value.
+For example, using the basis $\beta=10$ for the sake of simplicity, the floating-point value $3.149$ represents $\pi$ with an accuracy of $3$.
+It itself has a precision of $4$. It represents the real number $3.14903$
+with an accuracy of $4$. 
+
+
+As in \texttt{ML}, our type system admits parameterized types \cite{Pie02}. 
+\begin{verbatim}
+> let f = fun x -> x + 1.0 ;;
+val f : real{'a,'b,'c} -> real{<expr>,<expr>,<expr>} = <fun>
+
+> verbose true ;;
+- : unit = ()
+
+> f ;;
+- : real{'a,'b,'c} -> real{(SignPlus 'a 'b 1 0),
+\end{verbatim}
+\ \hspace{4.55cm}\texttt{((max 'b 0) +\_ (sigma+ 'a 1)),}
+
+~ \hspace{4.2cm}\texttt{((((max 'b 0) +\_ (sigma+ 'a 1)) }
+
+~ \hspace{4.6cm}\texttt{-\_ (max ('b -\_ 'c) -53))} 
+
+~ \hspace{4.2cm}\texttt{-\_ (iota ('b -\_ 'c) -53))\} = <fun>}
+
+\smallskip
+
+In the example above, the type of \texttt{f} is a function of an argument whose parameterized type is $\F{\texttt{'a}}{\texttt{'b}}{\texttt{'c}}$, where
+\texttt{'a}, \texttt{'b} and \texttt{'c} are three type variables. The return type of the function
+ \texttt{f} is \texttt{Real\{}$e_0$\texttt{,}$e_1$\texttt{,}$e_2$\texttt{\}} 
+where $e_0$, $e_1$ and $e_2$ are arithmetic expressions
+containing the variables \texttt{'a}, \texttt{'b} and \texttt{'c}. By default these expressions are not displayed by the system (just like higher order values are not explicitly
+displayed in \texttt{ML} implementations) but we may enforce the system to print them. In our implementation we write \texttt{+}, \texttt{-}, \texttt{*} and
+\texttt{/} the floating-point operators and \texttt{+\_}, \texttt{-\_}, \texttt{*\_} and
+\texttt{/\_} their integer versions. The expressions arising in the type of \texttt{f} are explained in Section \ref{infe}. As shown below, various
+applications of \texttt{f} yield results of various types, depending on the type of the argument.
+\begin{verbatim}
+> f 1.234 ;;
+- : real{+,1,53} = 2.234000000000000
+
+> f 1.234{4} ;;
+- : real{+,1,5} = 2.2
+\end{verbatim}
+
+If the interpreter detects that the result of some computation has no significant digit, then an error is raised. For example, it is well-known that
+in IEEE754 double precision $(10^{16} + 1)-10^{16}=0$. Our type system rejects this computation.
+\begin{verbatim}
+> (1.0e15 + 1.0) - 1.0e15 ;;
+- : real{+,50,54} = 1.0 
+
+> (1.0e16 + 1.0) - 1.0e16 ;;
+Error: The computed value has no significant digit. Its ufp is 0 but the ulp of the 
+certified value is 1 
+\end{verbatim}
+
+Last but not least, our type system accepts recursive functions. For example, we have:
+\begin{verbatim}
+> let rec g x = if x < 1.0 then x else g (x * 0.07) ;;
+val g : real{+,0,53} -> real{+,0,53} = <fun>
+
+> g 1.0 ;;
+- : real{+,0,53} = 0.07000000000000
+
+> g 2.0 ;;
+Error: This expression has type real{+,1,53} but an expression was expected of type
+real{+,0,53}
+\end{verbatim}
+
+In the above session, the type system unifies the return type of the function with the
+type of the conditional. The types of the \texttt{then} and \texttt{else} branches also need to be unified.
+Then the return type is \texttt{real\{+,0,53\}} which corresponds to the type of the
+value \texttt{1.0} used in the \texttt{then} branch. The type system also unifies the return
+type with the type of the argument since the function is recursive. Finally, we obtain that the type
+of \texttt{g} is \texttt{real\{+,0,53\} -> real\{+,0,53\}}.
+As a consequence, we cannot call \texttt{g}  with an argument whose \textsf{ufp} is greater
+than $\mathsf{ufp}(1.0)=0$.
+To overcome this limitation, we introduce new comparison operations for real numbers. While
+the standard comparison operator \texttt{<} has type \texttt{'a -> 'a -> bool},
+the operator \texttt{<\{s,u,p\}} has type \texttt{real\{s,u,p\} -> real\{s,u,p\} -> bool}.
+In other words, the compared value are cast in the format $\{s,u,p\}$ before performing the
+comparison. Now we can write the code:
+\begin{verbatim}
+> let rec g x = if x <{*,10,15} 1.0 then x else g (x * 0.07) ;;
+val g : real{*,10,15} -> real{*,10,15} = <fun>
+
+> g 2.0 ;;
+- : real{*,10,15} = 0.1
+
+> g 456.7 ;;
+- : real{*,10,15} = 0.1
+
+> g 4567.8 ;;
+Error: This expression has type real{+,12,53} but an expression was expected of 
+type real{*,10,15}
+\end{verbatim}
+
+Interestingly unstable functions (in the sense that the initial errors grow with 
+the number of iterations) are not typable. This is a desirable property of our type system.
+\begin{verbatim}
+> let rec h n = if (n=0) then 1.0 else 3.33 * (h (n -_ 1)) ;;
+Error: This expression has type real{+,-1,-1} but an expression was expected of 
+type real{+,-3,-1}
+\end{verbatim}
+
+Stable computations should be always accepted by our type system. Obviously,
+this is not the case and, as any non-trivial type system, our type system rejects some correct programs.
+The challenge is then to accept enough programs to be useful from an end-user point of view.
+We end this section by showing another example representative of what our type
+system accepts. More examples are given later in this article, in Section \ref{morex}.
+The example below deals with the implementation of the Taylor series
+\begin{equation}
+\frac{1}{1-x}=\sum_{n\ge 0}^{+\infty} x^n\enspace .
+\end{equation}
+The implementation  gives rise to a simple recursion, as shown in the programming
+session below.
+
+\begin{verbatim}
+> let rec taylor x{-1,25} xn i n = if (i > n) then 0.0{*,10,20}
+                                   else xn + (taylor x (x * xn) (i +_ 1) n) ;;
+
+val taylor : real{*,-1,25} -> real{*,10,20} -> int -> int 
+             -> real{*,10,20} = <fun>
+
+> taylor 0.2 1.0 0 5;;
+- : real{*,10,20} = 1.2499 +/- 0.0009765625
+\end{verbatim}
+
+
+
+Obviously, our type system computes the propagation of the errors due to finite precision
+but does not take care of the method error intrinsic to the implemented algorithm (the Taylor series instead of the exact formula $\frac{1}{1-x}$
+in our case.)
+All the programming sessions introduced above as well as the additional examples of Section \ref{morex} are fully interactive in our system, \texttt{Numl},
+i.e. the type judgments are obtained instantaneously (about 0.01 second in average following our measurements)
+including the most complicated ones.
+

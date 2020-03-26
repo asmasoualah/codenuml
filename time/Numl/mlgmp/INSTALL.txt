@@ -1,0 +1,6 @@
+INSTALLATION INSTRUCTIONS:
+
+Modify Makefile and the beginning of config.h as necessary.
+
+Use GNU Make. BSD Make won't work. On BSD systems, GNU Make is often
+available as "gmake".

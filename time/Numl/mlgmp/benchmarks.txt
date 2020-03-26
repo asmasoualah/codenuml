@@ -1,0 +1,71 @@
+Running the "essai" and "essai.opt" programs.
+
+INTEL ARCHITECTURE
+
+* Intel Pentium II, 400 MHz, PC-133, Linux [orion]
+essai_static: 2.55 s
+
+* Intel Pentium II w/ 512k cache (dual processor), 450 MHz
+essai_static: 2.30 s
+
+* Intel Pentium III, 450 MHz, FreeBSD 4.2 [chaland]
+essai.opt: 3.10 s
+
+* Intel Pentium III, 600 MHz, Linux [pleiades]
+essai_static: 1.63s
+
+* Intel Pentium III, 700 MHz, OpenBSD [espie]
+essai_static: 1.41s
+
+* Intel Pentium III, 1 GHz, FreeBSD 4.4 [airelle]
+essai:     1.47 s
+essai.opt: 1.41 s
+
+* Intel Celeron, 300 MHz, Linux 2.4.9/glibc 2.2.4 [quatramaran]
+essai:	      3.86 s
+essai.opt:    4.10 s
+essai_static: 3.40 s
+
+* AMD K7, 500 MHz w/ 512k cache, Linux [efge]
+essai_static: 1.92s
+
+* AMD K7, 600 MHz, Linux [rineau]
+essai_static: 1.49 s
+
+* AMD Athlon, 700 MHz, Linux [apo]
+essai_static: 1.22 s
+
+* AMD Duron, 700 MHz, Linux [lhabert]
+essai_static: 1.30 s
+
+* AMD Duron, 750 MHz (7.5x100), Linux [said]
+essai_static: 1.20 s
+
+* AMD Athlon, 750 MHz, Linux [glouglou, Frisch]
+essai_static: 1.12 s
+
+* AMD Athlon, 850 MHz, Linux 2.4.16/glibc 2.2.4 [picsou]
+essai:	      1.23 s
+essai.opt:    1.29 s
+essai_static: 1.12 s
+
+* AMD Athlon, 850 MHz, Linux 2.4.16/glibc 2.2.4 [picsou w/ BIOS settings]
+essai_static: 1.00 s
+
+* AMD Athlon, 900 MHz, Linux [ssecem]
+essai_static: 0.95 s
+
+SPARC ARCHITECTURE
+
+* UltraSparc IIi, 400 MHz, Solaris 2.8 [basilic]
+essai:     3.98 s
+essai.opt: 4.27 s
+
+* UltraSparc IIi, 360 MHz, Solaris 2.8 [mezcal]
+essai:	   4.86 s
+essai.opt: 5.27 s
+
+POWERPC ARCHITECTURE
+
+* ppc750 "G3", 400 Mhz, MacOS X (Darwin 5.2) [mastorna]
+essai:	   4 s

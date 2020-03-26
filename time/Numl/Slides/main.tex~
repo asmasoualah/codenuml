@@ -1,0 +1,517 @@
+
+
+\documentclass[handout,t]{beamer}
+\usepackage{graphicx,url}
+\usepackage[french]{babel}   
+\usepackage[utf8]{inputenc}
+\usepackage{nicefrac}
+\usepackage{listings}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{shadow,palatino,wasysym}
+
+
+\usepackage{amscd}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{galois}
+\usepackage{epsfig}
+
+
+\usepackage{amsmath,amssymb,enumerate,mathtools,epsfig,bbm,calc,color,ifthen,capt-of}
+%\usetheme{Berlin}
+%\usecolortheme{senac}
+
+\definecolor{senac-laranja}{rgb}{0.78,0.16,0.22}
+\definecolor{senac-azul}{rgb}{0.4,.4,0.4}
+\definecolor{blue}{rgb}{0.3,0.3,0.5}
+\definecolor{red}{rgb}{0.78,0.16,0.22}
+\definecolor{green}{rgb}{0.1,0.6,0.2}
+\definecolor{orange}{rgb}{0.2,0.6,0.2}
+
+\usetheme{CambridgeUS}
+%\usecolortheme{seahorse}
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamertemplate{items}[ball]
+%\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{title}{bg=red!65!black, fg=white}
+
+%\def\titre#1{\noindent \textbf{{\bf \textcolor{blue}{#1}}}\vspace{-0.2cm}\\\vspace{-0.7cm}\color{black}\rule{10cm}{.05cm}}
+\def\titre#1{\noindent \textbf{{\bf \textcolor{blue}{#1}}}\\\color{black}\rule{10cm}{.05cm}}
+
+\def\mytt#1{\texttt{\textbf{#1}}}
+\def\real#1{real\{#1\}}
+\def\mysection#1{\vspace{-1.1cm}\color{blue}
+\section{#1} \vspace{-0.7cm}\color{black}\rule{10cm}{.05cm}\vspace{-0.9cm}}
+
+\def\mysubsection#1{\vspace{-1.1cm}\color{blue}
+\subsection{#1} \vspace{-0.7cm}\color{black}\rule{10cm}{.05cm}\vspace{-0.9cm}}
+
+
+\def\preci#1{^{\mathsf{|#1|}}}
+\def\fplus{\overset{\rightarrow}{\oplus}}
+\def\ftimes{\overset{\rightarrow}{\otimes}}
+\def\bplus{\overset{\leftarrow}{\oplus}}
+\def\btimes{\overset{\leftarrow}{\otimes}}
+\def\fplusi{\overset{\rightarrow}{\boxplus}}
+\def\ftimesi{\overset{\rightarrow}{\boxtimes}}
+\def\bplusi{\overset{\leftarrow}{\boxplus}}
+\def\btimesi{\overset{\leftarrow}{\boxtimes}}
+
+\def\ov#1{\overline{#1}}
+\def\un#1{\underline{#1}}
+\def\eps{\varepsilon}
+
+\def\accf{\mathsf{acc}_F}
+\def\accb{\mathsf{acc}_B}
+\def\acc{\mathsf{acc}}
+\def\ufp{\mathsf{ufp}}
+\def\lw{\Lambda}
+
+%\input{macros.tex}
+
+\begin{document}
+
+%\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+%\renewcommand{\subsectionmark}[1]{\markright{\thesubsection\ #1}}
+%\newpagestyle{MH}
+%  {}
+%  {\textit{\color{blue}\rightmark} \hfill -\ \thepage\ -}
+%\pagestyle{MH} 
+%\frameframe{none}
+
+\date{M. Martel}
+
+                
+\begin{frame}
+~
+
+\vspace{0.5cm}
+
+%\centerline{
+%{\Large \textbf{Accuracy Driven}
+%}}
+
+\medskip
+
+\centerline{
+{\Large \textbf{Strongly Typed Numerical Computations}
+}}
+
+\medskip
+
+%\centerline{
+%{\Large \textbf{ in Mixed-Precision}
+%}}
+
+\vspace{0.7cm}
+
+
+
+\centerline{\textcolor{blue}{\sc Matthieu Martel}}
+
+\vspace{0.7cm}
+
+\centerline{\textcolor{blue}{\small University of Perpignan}}
+\centerline{\textcolor{blue}{\small Laboratory of Mathematics and Physics (LAMPS)}}
+
+\vspace{0.5cm}
+
+\centerline{\mytt{\small matthieu.martel@univ-perp.fr}}
+
+\vspace{0.8cm}
+
+
+\includegraphics[width=2cm]{logo.png} 
+
+
+\vspace{-1.2cm}~\hfill\includegraphics[width=1.5cm]{lamps_logo_ttt.png}
+
+
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Introduction}
+
+
+\vspace{1cm}
+
+\textbf{Contribution:} A type system for numerical accuracy
+
+\vspace{0.2cm}
+
+Type inference, dependent types, ML spirit
+
+\vspace{1cm}
+
+\textbf{Implementation:} \mytt{Numl}
+
+\vspace{1cm}
+
+\textbf{Interest:} Bug elimination, early debugging, accuracy information, 
+
+\vspace{0.2cm}
+
+code generation with optimal precision 
+
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Types Embedding Accuracy}
+
+
+\vspace{0.1cm}
+
+$$\color{red}
+x \text{ of type}\quad    \mathtt{real\{}s,u,p\mathtt{\}}
+$$
+
+\vspace{0.2cm}
+
+$s$ sign of $x$, $s\in \{ +,-,0,\top\}$
+
+\vspace{0.2cm}
+
+$u$ $\mathsf{ufp}(x)$, i.e. \textit{u}nit in the \textit{f}irst \textit{p}lace
+
+$$
+\mathsf{ufp}(f) = \min \big\{ i\in \mathbb{N}\ :\ 2^{i+1} > f\big\} = \lfloor \log_2(f)\rfloor
+$$
+
+\vspace{0.2cm}
+
+$p$ precision (number of bits of $x$)
+
+\vspace{0.4cm}
+
+\scriptsize\color{blue}
+\mytt{> 1.234 ;;}
+
+\mytt{- : \real{+,0,53} = 1.2340000000000000 +/- 1.11022302463e-16}
+
+\mytt{\ }
+
+\mytt{> 1.234\{4\} ;;}
+
+\mytt{- : \real{+,0,4} = 1.23 +/- 0.0625}
+\normalsize
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Parameterized Types}
+
+\scriptsize
+\color{blue}
+
+\vspace{1cm}
+
+\mytt{> let f = fun x -> x + 1.0 ;;}
+
+\mytt{val f : \textcolor{red}{\real{'a,'b,'c} -> \real{<expr>,<expr>,<expr>} = <fun>}}
+
+\mytt{\ }
+
+\mytt{> verbose true ;;}
+
+\mytt{- : unit = ()}
+
+\mytt{\ }
+
+\mytt{> f ;;}
+
+\mytt{- : \real{'a,'b,'c} -> real(((max 'b 0) +\_ (sigma+ 'd 1)),}
+
+~\hspace{3.5cm}\mytt{((max 'b 0) +\_ (sigma+ 'e 1)),}
+
+~\hspace{3.5cm}\mytt{((((max 'b 0) +\_ 1) -\_ (max ('b -\_ 'c) - 53))}
+
+~\hspace{3.5cm}\mytt{-\_ (iota ('b -\_ 'c) - 53))) = <fun>}
+
+\vspace{0.6cm}
+
+\normalsize\color{black}
+\mytt{+}, \mytt{-}, \mytt{*}, \mytt{/} real operators 
+
+\vspace{0.2cm}
+
+\mytt{+\_}, \mytt{-\_}, \mytt{*\_}, \mytt{/\_} integer operators
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Accuracy of the Results Explicited}
+
+\scriptsize
+\color{blue}
+
+\vspace{1cm}
+
+\mytt{> let f = fun x -> x + 1.0 ;;}
+
+\mytt{val f : \real{'a,'b,'c} -> \real{<expr>,<expr>,<expr>} = <fun>}
+
+\mytt{\ }
+
+
+\mytt{> f 1.234 ;;}
+
+\mytt{- : \real{+,1,53} = 2.2340000000000000 \textcolor{red}{+/- 2.22044604925e-16}}
+
+\mytt{\ }
+
+\mytt{> f 1.234\{4\} ;;}
+
+\mytt{- : \real{+,1,5} = 2.23 \textcolor{red}{+/- 0.0625}}
+
+\mytt{\ }
+
+\mytt{\ }
+
+
+\mytt{> (1.0e15 + 1.0) - 1.0e15 ;;}
+
+\mytt{- : \real{+,50,54} = 1.0 \textcolor{red}{+/- 0.0625}}
+
+\mytt{\ }
+
+\mytt{> (1.0e16 + 1.0) - 1.0e16 ;;}
+
+\mytt{\textcolor{red}{Error: The computed value has no significant digit. Its ufp is 0 but the ulp of the certified
+value is 1}}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Recursivity}
+
+\scriptsize
+\color{blue}
+
+%\vspace{1cm}
+
+\mytt{> let rec g x = if x \textcolor{green}{<} 1.0 then x else g (x * 0.07) ;;}
+
+\mytt{\color{red}val g : \real{+,0,53} -> \real{+,0,53} = <fun>}
+
+\mytt{\ }
+
+\mytt{> g 1.0;;}
+
+\mytt{\color{red}- : \real{+,0,53} =  0.070000000000000 +/- 1.11022302463e-16}
+
+\mytt{\ }
+
+\mytt{> g 2.0 ;;}
+
+\mytt{\color{red}Error: This expression has type \real{+,1,53} but an expression was expected of type \real{+,0,53}}
+
+\normalsize
+\color{black}
+
+\vspace{0.4cm}
+
+$$
+\mytt{<}\ :\ \alpha\ \longrightarrow\ \alpha\ \longrightarrow\ \mytt{bool}
+$$
+
+$$
+\begin{array}{c}
+\real{s_1,u_1,p_1} \sqsubseteq \real{s_2,u_2,p_2} 
+\\
+\iff
+\\
+s_1 \preceq s_2,\quad
+u_1 \le u_2,\quad
+p_1 \ge p_2 + u_1 - u_2
+\end{array}
+$$
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Monomorphic Comparisons}
+
+
+\vspace{0.6cm}
+
+$$
+\mytt{<\{u,p\}}\ :\ \mytt{\real{$\top$,u,p}} \longrightarrow \mytt{\real{$\top$,u,p}} \longrightarrow 
+\mytt{bool}
+$$
+
+\vspace{0.6cm}
+\scriptsize
+\color{blue}
+
+
+\mytt{> let rec g x = if x \textcolor{green}{<\{10,15\}} 1.0 then x else g (x * 0.7) ;;}
+
+\mytt{\color{red}val g : \real{T,10,15} -> \real{T,10,15} = <fun>}
+
+\mytt{\ }
+
+\mytt{> g 2.0 ;;}
+
+\mytt{\color{red}- : \real{T,10,15} = 0.14 +/- 0.03125}
+
+\mytt{\ }
+
+\mytt{> g 456.7 ;;}
+
+\mytt{\color{red}- : \real{T,10,15} = 0.16 +/- 0.03125}
+
+\mytt{\ }
+
+\mytt{> g 4567.8 ;;}
+
+\mytt{\color{red}Error: This expression has type \real{+,12,53} but an expression was expected of type \real{T,10,15}
+}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Another Example}
+
+
+~\hfill\includegraphics[width=3.5cm]{pow.png}
+
+\vspace{0.2cm}
+
+\scriptsize
+\color{blue}
+
+\mytt{> let rec pow x n = if (n=0) then 1.0 else x * (pow x (n -\_ 1)) ;;}
+ 
+\mytt{\color{red}val pow : \real{+,-1,54} -> int -> \real{+,0,53} = <fun>}
+
+\mytt{\ }
+
+\mytt{> let rec pow x n = if (n=0) then 1.0\{5,24\} else x*(pow x (n-\_ 1)) ;; }
+
+\mytt{\color{red}val pow : \real{+,4,25} -> int -> \real{+,5,24} = <fun>}
+
+\mytt{\ }
+
+\mytt{> pow 3.0 2 ;;}
+
+\mytt{\color{red}- : \real{+,5,24} = 9.000000 +/- 1.90734863281e-06}
+
+\mytt{\ }
+
+\mytt{> pow 3.0 4 ;;}
+
+\mytt{\color{red}Error: The computed value is out of the range of the certified values. Its ufp is 6 which is greater than the ufp 5 in the type of the result
+}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Yet Another Example}
+
+~\hfill\includegraphics[width=2.5cm]{rect.png}
+
+\vspace{-1.5cm}
+
+\scriptsize
+\color{blue}
+
+
+\mytt{> let rec rectangle f a b h =}
+
+~\hspace{0.5cm}\mytt{  if (a >= b) then }
+
+~\hspace{1cm}\mytt{    0.0\{20,30\}}
+
+~\hspace{0.5cm}\mytt{  else}
+
+~\hspace{1cm}\mytt{    ((f a) * h) + (rectangle f (a + h) b h) ;;}
+
+\mytt{\color{red}val rectangle : \real{<expr>,<expr>,<expr>} -> \real{0,19,31} -> \real{<expr>,<expr>,<expr>} -> \real{<expr>,<expr>,<expr>} -> \real{-,0,31} -> \real{0,20,30} = <fun>
+}
+
+\mytt{\ }
+
+\mytt{> let rec g x = x * x ;;}
+
+\mytt{\color{red}val g : \real{'a,'b,'c} -> \real{<expr>,<expr>,<expr>} = <fun>}
+
+\mytt{\ }
+
+\mytt{> rectangle g 0.0 2.0 0.01 ;;}
+
+\mytt{\color{red}- : \real{0,20,30} = 2.6867 +/- 0.0009765625}
+
+\mytt{\ }
+
+\color{black}\normalsize
+
+\centerline{Remark: Method error not considered}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Typing Rules}
+
+\small
+
+$$
+\frac{}
+     {\Gamma \vdash \texttt{i} :\ \mathtt{int} }\quad\textsc{(Int)}
+	 \hspace{2cm}
+\frac{}
+     {\Gamma \vdash \texttt{b } :\ \mathtt{bool} }\quad\textsc{(Bool)}
+$$
+
+$$
+\frac{\mathsf{ufp}(\texttt{f})\le u}
+     {\Gamma \vdash \texttt{f\{u,p\}}\ :\real{s}{u}{p} }\quad\textsc{(Float)}
+\hspace{2cm}
+\frac{\mathtt{id} : t \in \Gamma}
+     {\Gamma \vdash \mathtt{id}\ :\ t }\quad\textsc{(Var)}
+$$
+
+$$
+\frac{
+\Gamma \vdash e_0\ :\ \mathtt{bool}\hspace{1cm}\Gamma \vdash e_1\ :\ t_1\hspace{1cm} \Gamma \vdash e_2\ :\ t_2
+\hspace{1cm} t=t_1\sqcup t_2}
+{\Gamma\vdash \mathtt{if}\ e_0\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2\ :\  t}\quad\textsc{(Cond)}
+$$
+
+$$
+\frac{\Gamma,x :t_1 \vdash e :  t_2}
+     {\Gamma \vdash \lambda x.e : \Pi x:t_1 .  t_2}\quad\textsc{(Abs)}
+%\hspace{2cm}
+$$
+
+$$
+\frac{\Gamma \vdash e_1 : \Pi x: t_0. t_1\hspace{1cm} \Gamma \vdash e_2 :  t_2
+\hspace{1cm} t_2\sqsubseteq t_1
+}
+     {\Gamma \vdash e_1\ e_2 :  t_2[x\mapsto e_2]}\quad\textsc{(App)}
+$$
+
+
+\end{frame}
+
+
+
+\end{document}
+

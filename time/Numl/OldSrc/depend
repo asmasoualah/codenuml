@@ -1,0 +1,20 @@
+checker.cmo : types.cmo print.cmo primitives.cmo prelude.cmo \
+    /usr/lib/ocaml/gmp/gmp.cmi eval.cmo
+checker.cmx : types.cmx print.cmx primitives.cmx prelude.cmx \
+    /usr/lib/ocaml/gmp/gmp.cmi eval.cmx
+eval.cmo : types.cmo print.cmo primitives.cmo prelude.cmo \
+    /usr/lib/ocaml/gmp/gmp.cmi
+eval.cmx : types.cmx print.cmx primitives.cmx prelude.cmx \
+    /usr/lib/ocaml/gmp/gmp.cmi
+main.cmo : types.cmo print.cmo primitives.cmo prelude.cmo \
+    /usr/lib/ocaml/gmp/gmp.cmi eval.cmo checker.cmo
+main.cmx : types.cmx print.cmx primitives.cmx prelude.cmx \
+    /usr/lib/ocaml/gmp/gmp.cmi eval.cmx checker.cmx
+prelude.cmo : types.cmo /usr/lib/ocaml/gmp/gmp.cmi
+prelude.cmx : types.cmx /usr/lib/ocaml/gmp/gmp.cmi
+primitives.cmo : types.cmo prelude.cmo
+primitives.cmx : types.cmx prelude.cmx
+print.cmo : types.cmo prelude.cmo /usr/lib/ocaml/gmp/gmp.cmi
+print.cmx : types.cmx prelude.cmx /usr/lib/ocaml/gmp/gmp.cmi
+types.cmo : /usr/lib/ocaml/gmp/gmp.cmi
+types.cmx : /usr/lib/ocaml/gmp/gmp.cmi

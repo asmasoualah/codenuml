@@ -1,0 +1,123 @@
+
+\subsection{Experiments}
+\label{morex}
+
+In this section, we report some experiments showing how our type system behaves in practice.
+Section \ref{sssusmath} presents \texttt{Numl} implementations of usual mathematical formulas
+while Section \ref{newton} introduce a larger example demonstrating the
+expressive power of our type system.
+
+\subsubsection{Usual Mathematic Formulas}
+\label{sssusmath}
+
+Our first examples concern usual mathematic formulas, to compute the volume of 
+geometrical objects or formulas related to polynomials. 
+These examples aim at showing that usual mathematical formulas are typable in our system.
+We start with the volume of the sphere and of the cone.
+
+\begin{verbatim}
+> let sphere r = (4.0 / 3.0) * 3.1415926{+,1,20} * r * r * r ;;
+val sphere : real{'a,'b,'c} -> real{<expr>,<expr>,<expr>} = <fun>
+
+> sphere 1.0 ;;
+- : real{+,7,20} = 4.188
+
+> let cone r h = (3.1415926{+,1,20} * r * r * h) / 3.0 ;;
+val cone : real{'a,'b,'c} -> real{'a,'b,'c} 
+           -> real{<expr>,<expr>,<expr>} = <fun>
+
+> cone 1.0 1.0 ;;
+- : real{+,4,20} = 1.0472
+\end{verbatim}
+
+We repeatedly define the function \texttt{sphere}  with more precision in order
+to show the impact on the accuracy of the results. Note that the results now have $15$ digits instead
+of the former $5$ digits.
+
+\begin{verbatim}
+> let sphere r = (4.0 / 3.0) * 3.1415926535897932{+,1,53} * r * r * r ;;
+val sphere : real{'a,'b,'c} -> real{<expr>,<expr>,<expr>} = <fun>
+
+> sphere 1.0 ;; 
+- : real{+,7,52} = 4.1887902047863
+\end{verbatim}
+
+
+The next examples concern polynomials. We start with 
+ the computation of the discriminant of a second degree polynomial.
+
+\begin{verbatim}
+> let discriminant a b c = b * b - 4.0 * a * c ;;
+val discriminant : real{'a,'b,'c} -> real{'d,'e,'f} -> real{'g,'h,'i} 
+                   -> real{<expr>,<expr>,<expr>} = <fun>
+
+> discriminant 2.0 -11.0 15.0 ;;
+- : real{+,8,52} = 1.000000000000
+\end{verbatim}
+
+Our last example concerning usual formulas is the Taylor series development of the sine function. In the
+code below, observe
+that the accuracy of the result is correlated to the accuracy of the argument.
+As mentioned in Section \ref{over}, error methods are neglected, only the errors due
+to the finite precision are calculated (indeed, $\sin \frac{\pi}{8}=0.382683432\ldots$).
+
+\begin{verbatim}
+let sin x = x - ((x * x * x) / 3.0) + ((x * x * x * x * x) / 120.0) ;;
+val sin : real{'a,'b,'c} -> real{<expr>,<expr>,<expr>} = <fun>
+
+> sin (3.14{1,6} / 8.0) ;;
+- : real{*,0,6} = 0.3
+
+> sin (3.14159{1,18} / 8.0) ;;
+- : real{*,0,18} = 0.37259
+\end{verbatim}
+
+
+\subsubsection{Newton-Raphson Method}
+\label{newton}
+
+In this section, we introduce a larger example to compute the zero of a function    
+using Newton-Raphson method. This example, which involves several
+higher order functions, shows the expressiveness of our type system.
+      
+In the programming session below, we first define a higher order function \texttt{deriv}
+which takes as argument a function and computes its numerical derivative at a given point.
+Then we define a function \texttt{g} and compute the value of its derivative at point $2.0$.
+Next, by partial application, we build a function computing the derivative of \texttt{g} at any point.
+Finally, we define a function \texttt{newton} implementing Newton-Raphson method to find the
+zero of a function. The \texttt{newton} function is also an higher order function taking as
+argument the function for which a zero has to be found and its derivative.
+
+\begin{verbatim}
+> let deriv f x h = ((f (x + h)) - (f x)) / h ;;
+val deriv : (real{<expr>,<expr>,<expr>} -> real{'a,'b,'c}) 
+             -> real{<expr>,<expr>,<expr>} -> real{'d,'e,'f} 
+             -> real{<expr>,<expr>,<expr>} = <fun>
+
+> let g x = (x*x) - (5.0*x) + 6.0 ;;
+val g : real{'a,'b,'c} -> real{<expr>,<expr>,<expr>} = <fun>
+
+> deriv g 2.0 0.01 ;;
+- : real{*,5,51} = -0.9900000000000
+
+> let gprime x = deriv g x 0.01 ;;
+val gprime : real{<expr>,<expr>,<expr>} -> real{<expr>,<expr>,<expr>} = <fun>
+
+> let newton x xold f fprime = if ((x-xold)<0.01{*,10,20}) then x 
+                               else newton (x-((f x)/(fprime x))) x f fprime ;;
+val newton : real{*,10,21} -> real{0,10,20} -> (real{*,10,21} -> real{'a,'b,'c})
+             -> (real{*,10,21} -> real{'d,'e,'f}) -> real{*,10,21} = <fun>
+
+> newton 9.0 0.0 g gprime ;;
+- : real{*,10,21} = 5.771
+\end{verbatim}
+ 
+%In the programming session above, the function \texttt{rectangle}  implements the rectangle method 
+%for numerical integration. It computes the integral $I=\int_a^b f(x)dx$ for a function $f$
+%given as parameter (hence \texttt{rectangle} is an higher order function).
+ We call the
+\texttt{newton} function with our function \texttt{g} and its derivative computed by partial application of the
+\texttt{deriv} function. As a result we obtain a root of our polynomial \texttt{g} with a
+guaranteed accuracy. Note that while Newton-Raphson method converges quadratically in the exact arithmetic,
+numerical errors may perturb the process \cite{DMC15b}. 
+

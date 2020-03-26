@@ -1,0 +1,162 @@
+
+
+
+
+
+
+bugs 
+
+
+
+
+
+
+
+-
+
+/
+
+
+
+
+
+
+===============================
+
+
+
+(1.0e20{23} + 1.0{23}) - 1.0e20{23} ;;
+
+
+
+(1.0e16 + 1.0) - 1.0e16 ;;
+
+
+
+(1.0e15 + 1.0) - 1.0e15 ;;
+
+
+
+let f x = x + 1.0;;
+
+
+
+f 1.234
+
+
+
+let rec g x = if x < 1.0 then x else g (x * 0.7) ;;
+let rec g x = if x <{10,15} 1.0 then x else g (x * 0.7) ;;
+
+
+let rec f x y = if ((x-y)<0.0) then x else f (x * 0.6) y ;;
+let rec f x y = if (x <{6,9} y) then x else f (x * 0.6) y ;;
+
+let rec f x = if (x> 1000.0) then x else f (x * 16.2) ;;
+
+
+
+f 999.9
+
+
+1.0 ;;
+
+
+
+1.0{10,5} ;;
+
+
+
+let f x = x + 1.0;;
+
+
+
+verbose true;;
+
+
+
+f;;
+
+
+
+verbose false ;;
+
+
+
+f 5.5;;
+
+
+
+let rec f x = if (x> 1000.0{10,55}) then x else f (x * 16.2) ;;
+
+
+
+f 2.2;; f 99999.9 ;;
+
+
+
+f 999.9 ;; (* il doit afficher zero bit correct de resultat mais pas de bug *)
+
+
+
+let rec fact{*,10} n = if (n=0.0) then 1.0 else n * (fact (n - 1.0));;
+
+
+
+let rec fact n = if (n=0.0{10, 5}) then 1.0 else n * (fact (n - 1.0));; (* vraiment faux : 5 bits n'atteignent pas le 0 *)
+
+let rec fact n = if (n=0.0{10,15}) then 1.0 else n * (fact (n - 1.0));; (* vraiment faux : n{11,*} pas comp avec 1.0{0,*} *)
+
+
+
+let rec fact n = if (n=0.0{10,15}) then 1.0{10,15} else n * (fact (n - 1.0));; (* OK *)
+let rec fact n = if (n<{10,15} 1.0) then 1.0{10,15} else n * (fact (n - 1.0));;
+let rec fact n = if (n={17,8}0.0) then 1.0{10,15} else n * (fact (n - 1.0));;
+
+
+let rec fact n = if (n = 0.0) then 1.0{10,15} else n * (fact (n - 1.0));;
+
+
+
+> fact 4.0{2,5} ;;
+
+- : Float{10,15} = 24.
+
+
+
+> fact 50.0{5,5};;
+
+- : Float{10,15} = 3.04140932017e+64 (* il doit afficher zero bit correct de resultat mais pas de bug *)
+
+
+
+
+let rec pow x n = if (n=0) then 1.0{5,24} else x * (pow x (n -_ 1)) ;; 
+
+let rec pow x n = if (n=0) then 1.0 else x * (pow x (n -_ 1)) ;; 
+
+let rec rectangle f a b h =
+  if (a >= b) then 
+    0.0{20,30}
+  else
+    ((f a) * h) + (rectangle f (a + h) b h) ;;
+
+
+
+
+let rec horner p x{10,12} = if (p = []) then 1.0{10,20} else (hd p) + (x * (horner (tl p) x)) ;;
+
+let rec horner p x = if (p = []) then 1.0{10,20} else (hd p) + (x * (horner (tl p) x)) ;;
+
+let rec horner{10,20} p x = if (p = []) then 1.0{3,40} else (hd p) + (x * (horner (tl p) x)) ;;
+
+
+horner [1.1;2.2;3.3] 1.0 ;;
+
+
+
+
+
+
+
+let rec f n = if (n=0) then 0.0 else 0.1 + (f (n -_ 1)) ;;

@@ -1,0 +1,5 @@
+(declare-const a_338 Int)
+(assert (<= 0 (+ 2 1)))
+(assert (>= 53 (- (- (+ 2 1) -51) 1)))
+(check-sat)
+(get-model)

@@ -1,0 +1,690 @@
+
+
+\documentclass[handout,t]{beamer}
+\usepackage{graphicx,url}
+\usepackage[french]{babel}   
+\usepackage[utf8]{inputenc}
+\usepackage{nicefrac}
+\usepackage{listings}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{shadow,palatino,wasysym}
+
+
+\usepackage{amscd,array}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{galois}
+\usepackage{epsfig,tabularx}
+
+
+\usepackage{amsmath,pifont,amssymb,enumerate,mathtools,epsfig,bbm,calc,color,ifthen,capt-of}
+%\usetheme{Berlin}
+%\usecolortheme{senac}
+
+\definecolor{senac-laranja}{rgb}{0.78,0.16,0.22}
+\definecolor{senac-azul}{rgb}{0.4,.4,0.4}
+\definecolor{blue}{rgb}{0.3,0.3,0.5}
+\definecolor{red}{rgb}{0.78,0.16,0.22}
+\definecolor{green}{rgb}{0.1,0.6,0.2}
+\definecolor{orange}{rgb}{0.2,0.6,0.2}
+
+\usetheme{CambridgeUS}
+%\usecolortheme{seahorse}
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamertemplate{items}[ball]
+%\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{title}{bg=red!65!black, fg=white}
+
+%\def\titre#1{\noindent \textbf{{\bf \textcolor{blue}{#1}}}\vspace{-0.2cm}\\\vspace{-0.7cm}\color{black}\rule{10cm}{.05cm}}
+\def\titre#1{\noindent \textbf{{\bf \textcolor{blue}{#1}}}\\\color{black}\rule{10cm}{.05cm}}
+
+\def\mytt#1{\texttt{\textbf{#1}}}
+\def\real#1{real\{#1\}}
+\def\re#1{\mathsf{R}_{#1}}
+\def\mysection#1{\vspace{-1.1cm}\color{blue}
+\section{#1} \vspace{-0.7cm}\color{black}\rule{10cm}{.05cm}\vspace{-0.9cm}}
+
+\def\mysubsection#1{\vspace{-1.1cm}\color{blue}
+\subsection{#1} \vspace{-0.7cm}\color{black}\rule{10cm}{.05cm}\vspace{-0.9cm}}
+
+\def\Gamma{\sigma}
+\def\Pi{\pi}
+
+\def\preci#1{^{\mathsf{|#1|}}}
+\def\fplus{\overset{\rightarrow}{\oplus}}
+\def\ftimes{\overset{\rightarrow}{\otimes}}
+\def\bplus{\overset{\leftarrow}{\oplus}}
+\def\btimes{\overset{\leftarrow}{\otimes}}
+\def\fplusi{\overset{\rightarrow}{\boxplus}}
+\def\ftimesi{\overset{\rightarrow}{\boxtimes}}
+\def\bplusi{\overset{\leftarrow}{\boxplus}}
+\def\btimesi{\overset{\leftarrow}{\boxtimes}}
+
+\def\ov#1{\overline{#1}}
+\def\un#1{\underline{#1}}
+\def\eps{\varepsilon}
+
+\def\accf{\mathsf{acc}_F}
+\def\accb{\mathsf{acc}_B}
+\def\acc{\mathsf{acc}}
+\def\ufp{\mathsf{ufp}}
+\def\lw{\Lambda}
+
+%\input{macros.tex}
+
+\begin{document}
+
+%\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+%\renewcommand{\subsectionmark}[1]{\markright{\thesubsection\ #1}}
+%\newpagestyle{MH}
+%  {}
+%  {\textit{\color{blue}\rightmark} \hfill -\ \thepage\ -}
+%\pagestyle{MH} 
+%\frameframe{none}
+
+\date{M. Martel, \mytt{Numl}}
+
+                
+\begin{frame}
+~
+
+\vspace{0.5cm}
+
+%\centerline{
+%{\Large \textbf{Accuracy Driven}
+%}}
+
+\medskip
+
+\centerline{
+{\Large \textbf{Strongly Typed Numerical Computations}
+}}
+
+\medskip
+
+%\centerline{
+%{\Large \textbf{ in Mixed-Precision}
+%}}
+
+\vspace{0.7cm}
+
+
+
+\centerline{\textcolor{blue}{\sc Matthieu Martel}}
+
+\vspace{0.7cm}
+
+\centerline{\textcolor{blue}{\small University of Perpignan \& Numalis}}
+\centerline{\textcolor{blue}{\small Laboratory of Mathematics and Physics (LAMPS)}}
+
+\vspace{0.5cm}
+
+\centerline{\mytt{\small mxatthieu.martel@univ-perp.fr}}
+
+\vspace{0.8cm}
+
+
+\centerline{
+\begin{tabular}{cccc}
+\includegraphics[width=2.2cm]{logo.png} \hspace{0.1cm}&
+\includegraphics[width=1.9cm]{lamps_logo_ttt.png}\hspace{0.1cm}&
+\includegraphics[width=2.3cm]{numalis.png}\hspace{0.1cm}&
+\includegraphics[width=3.5cm]{onrg.jpeg}%
+\end{tabular}}
+
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Introduction}
+
+Les types et les systèmes de types constituent la technique
+principale de validation d'un programme
+
+~
+
+Ces notions sont liées à des algorithmes et des techniques de
+preuve
+
+~
+
+Un système de types n'effectue qu'une validation partielle
+
+~
+
+Un système de types contraint, régit et complique les moyens
+d'expression d'un langage
+
+~
+
+Il n'y a pas de solution unique. Nous étudions ici le typage des
+langages de la famille ML
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Base des langages fonctionnels : le $\lambda$-calcul (1)}
+
+$V$ un ensemble de variables
+
+~
+
+$C$ un ensemble de constantes
+
+~
+
+Le langage $L$ des $\lambda$-expressions sur $V$ et $C$ est tel que :
+
+\begin{itemize}
+\item Si $x \in V \cup C$ , alors $x \in L$ 
+\item Si $x \in V$ et $e \in L$ , alors $\lambda x . e \in L$ (abstraction)
+\item Si $e_1$ , $e_2 \in L$ , alors $e_1\ e_2 \in L$ (application)
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Le $\lambda$-calcul (2)}
+
+L'occurrence d'une variable 
+$x$ dans une $\lambda$-expression $e$
+est
+liée (bound) si $e = \lambda x . e$ et $x \in e$
+
+~
+
+Elle est libre
+est dite
+(free/unbound) sinon
+
+~
+
+La
+$\beta$-réduction de $(\lambda x . e_1 ) e_2$
+consiste à substituer toutes les
+occurrences de
+de
+$x$ liées dans $e_1$ par $e_2$ 
+
+$$(\lambda x . x ) 1 \rightarrow 1$$
+$$(\lambda x . x ) (\lambda x . x ) \rightarrow (\lambda x . x )$$
+$$(\lambda x . y ) 1 \rightarrow y$$
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Typage}
+
+La version du $\lambda$-calcul
+que nous venons d'étudier est un exemple de
+langage non-typé, ce qui pose plusieurs questions 
+
+~
+
+Les expressions correspondent-elles toutes à des valeurs ? (ex:
+$x\ x$)
+
+~
+
+Peut-on regrouper des expressions partageant un ensemble de
+propriétés ?
+
+~
+
+Comment distinguer des comportements suivant les propriétés
+d'une valeur (ex : addition d'entiers
+$\not=$
+addition de flottants)
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Les types}
+
+Organisent les valeurs traitées par les programmes en
+ensembles qui sont caractérisés par l'usage que l'on en fait
+
+~
+
+Permettent de vérifier la validité (une partie) des programmes
+lors de leur compilation/exécution (prouve
+l'absence de certains mauvais comportements)
+
+
+~
+
+\color{red}
+Documentent un programme, ses compilations
+
+~
+
+
+Rationalisent la représentation des valeurs et leurs
+transformations au niveau machine.
+\color{black}
+
+~
+
+Type : ensemble d'entités (ou valeurs) partageant les mêmes
+propriétés
+
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Système de types}
+
+Jugement de type :
+$E\vdash e : t $
+signifie dans l'environnement
+$E$ , l'expression $e$
+a pour type
+$t$
+
+~
+
+Système de type : ensemble de types + règles permettant de
+déterminer si un programme/expression est bien typée ou
+pas
+
+~
+
+Vérification de type : l'affirmation $E\vdash e : t $ est-elle correcte ?
+
+~
+
+Inférence de type : étant donné
+$E$ peut-on trouver $t$ tel que $E\vdash e : t $ ?
+
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Règles de typage : règles d'inférence}
+
+$$
+\frac{c\in Dom(E)}
+     {E\vdash c \ : E(c)}
+$$
+
+
+$E$
+est un environnement associant un type à une expression
+
+~
+
+Une règle d'inférence dit que si les prémisses de la règle (partie
+haute) sont satisfaites alors on peut en déduire que la
+conclusion (partie basse) est vraie
+
+~
+
+Ci-dessus on déclare qu'une constante $c$
+a pour type
+$E ( c )$ si
+elle fait partie du domaine de $E$
+
+~
+
+On dit ainsi que $c$
+est bien typée si elle est liée (déclarée) dans $E$
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Types de base}
+
+Les types de base sont construits à partir de
+constantes de types $\mathcal{C}$, de variables de types $\mathcal{V}$ et de
+constructeurs de types. Soit
+$\mathcal{T}$
+l'ensemble des types
+
+~
+
+Constates de types (int, float, $\ldots$) : si $t \in \mathcal{C}$ , alors $t \in \mathcal{T}$
+
+~
+
+Variables de types : si $t \in \mathcal{V}$ , alors $t \in \mathcal{T}$
+
+~
+
+Type produit : si $t_1$ , $t_2 \in \mathcal{T}$ , alors $t_1*t_2 \in \mathcal{T}$
+
+~
+
+Type liste : si $t \in \mathcal{T}$ , alors $t\ \mathtt{list} \in \mathcal{T}$ 
+
+~
+
+Type fonctionnel : si $t_1$ , $t_2 \in \mathcal{T}$ , alors $t_1\rightarrow t_2 \in \mathcal{T}$ 
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Polymorphisme}
+
+
+
+Schémas de types $\mathcal{S}$ (pour le polymorphisme), $\mathcal{T} \subseteq \mathcal{S}$
+$\sigma = \forall \alpha_1 , \ldots, \alpha_n , t$
+
+~
+
+
+En OCaml le quantificateur est remplacé par la convention
+d'écriture
+\texttt{'a -> 'b -> ( 'a * 'b ) }
+
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{L'environnement initial}
+
+Le typage s'effectue à partir d'un environnement de typage
+initial
+$E_{init}$
+contenant le type des constantes et des opérateurs
+prédéfinis du langage
+
+~
+
+$$E_{init}(3)=\mathtt{int}$$
+
+
+$$E_{init}(+)=\mathtt{int}\rightarrow \mathtt{int}$$
+
+
+
+$$E_{hd}(\mathtt{::})=\forall \alpha, \alpha\ \mathtt{list} \rightarrow \alpha$$
+
+~
+
+Le typage de $+$ s'effectue à l'aide de la règle d'inférence sur
+les constantes vue précédemment (ou plutôt la règle sur les
+variables, très similaire, pour des questions de polymorphisme)
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Application de fonction}
+
+$$
+\frac{E\vdash e_1 : t_1\rightarrow t_2\quad \quad E\vdash e_2 : t_1}
+     {E\vdash e_1\ e_2\ :\ t_2}
+$$
+
+
+$e_1\ e_2$ est l'application de la fonction $e_1$ à $e_2$
+
+~
+
+Pour que $e_1\ e_2$ soit bien typé, il faut que 
+\begin{itemize}
+\item $e_1$
+soit une fonction (prémisse gauche)
+\item $e_2$
+ait le type du paramètre attendu par $e_1$ (prémisse droite)
+\end{itemize}
+
+~
+
+$e_1\ e_2$ a alors pour type le type retourné par la fonction $e_1$
+
+~
+
+Exemple d'application :
+
+\color{blue}
+
+~
+
+\texttt{\# float\_of\_int 1;;}
+
+\texttt{- : float = 1.}
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Définition de fonction}
+
+$$
+\frac{E,x:t_1 \vdash e\ : t_2}
+     {E\vdash \lambda x.e :\ t_1\rightarrow t_2}
+$$
+
+Pour pouvoir calculer le type de l'expression
+$e$ , on rajoute $x$
+dans l'environnement avec son type 
+
+ ~
+
+Intuitivement, cela revient à déclarer les paramètres de la
+fonction dans l'environnement
+
+~
+
+Dans cet environnement enrichi, on calcule ensuite le type de
+$e$
+
+~
+
+Le type obtenu pour
+$e$
+sera le type de retour de la fonction
+
+~
+
+L'expression résultante a un type fonctionnel
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Unification}
+
+Une substitution de type est une application
+$s
+\ :\ \mathcal{V}\rightarrow \mathcal{T}$
+Appliquer $s$ à $\sigma \in \mathcal{T}$
+donne un type
+$\sigma s$
+
+$$
+xs = s ( x )
+$$
+$$
+(\sigma \rightarrow t ) s = (\sigma s ) \rightarrow ts
+$$
+$$
+(\sigma * t ) s = (\sigma s ) * ts
+$$
+$$
+(\sigma \mathtt{list} ) s = (\sigma s ) \mathtt{list}
+$$
+
+Si $\sigma_1,\sigma_2\in\mathcal{T}$, unifier $\sigma_1$ et $\sigma_2$
+consiste à trouver une substitution $s$
+telle que $\sigma_1 s = \sigma_2 s$
+
+~
+
+\color{blue}
+ex : $t_1 \rightarrow t_2$ et $t_1 \rightarrow t_3 \rightarrow t_4$ sont unifiables :
+$s = \{ t_2 \mapsto t_3 \rightarrow t_4 \}$
+
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Preuve de type}
+
+Une preuve de type consiste à utiliser les règles d'inférence
+récursivement afin de trouver un type pour une expression.
+
+~
+
+A chaque niveau de récursion :
+
+\begin{enumerate}
+\item On considère la règle dont la conclusion correspond à
+l'expression à typer
+\item On cherche à prouver chacune des prémisses
+\item La preuve d'une prémisse calcule elle-même un type
+\item Le type calculé pour une prémisse doit être unifiable avec le
+type attendu par la règle pour cette prémisse
+\end{enumerate}
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Preuve de type (suite)}
+
+
+Si une unification échoue, la preuve est impossible, l'expression
+est donc mal typée.
+
+~
+
+En OCaml les erreurs de type affichées par le compilateur sont
+le résultat d'un échec d'unification :
+
+~ 
+
+\texttt{This
+expression has type int but is here used with type float 
+}
+
+~
+
+L'unification a échoué car
+int
+et
+float
+ne sont pas unifiables.
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Généralisation}
+
+Au cours du typage, on distingue  deux types de
+variables de type
+
+~
+
+Variables monomorphes : ce sont les $t_1$ , $t_2$ , $\ldots$, que nous avons
+utilisé dans les règles d'inférence. Elles permettent juste de
+désigner un type que l'on ne connaît pas encore (que l'on
+attend de calculer).
+
+~
+
+Variables polymorphes (ou variables universelles) : ce sont les
+variables paramétrant les schémas de type (les $\alpha$ dans
+$\forall \alpha,\alpha\rightarrow \alpha$ ). Elles apparaissent cette fois dans le résultat final
+d'un calcul de type et désignent n'importe quel type
+
+~
+
+La généralisation consiste à remplacer les variables
+monomorphes d'un type par des variables polymorphes 
+
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Instantation}
+
+$$
+\frac{E(x)=\sigma\quad t=instance(\sigma)}
+     {E\vdash x : t }
+$$
+
+
+L'instanciation est l'opération inverse de la généralisation.
+
+~
+
+L'instanciation remplace les variables polymorphes d'un
+schéma de type par des variables monomorphes.
+
+
+~
+
+Attention : l'instanciation ne modifie pas le type de la variable
+dans l'environnement
+$E$ 
+
+~
+
+On prend bien une instance de cette
+variable.
+L'instance de cette variable a un type pour l'instant inconnu
+(variable monomorphe) mais pas quelconque (variable
+polymorphe)
+
+
+\end{frame}
+
+\begin{frame}
+
+~
+
+~
+
+~
+
+~
+
+
+
+~
+
+~
+
+~
+
+~
+
+{\LARGE Questions?}
+
+\end{frame}
+
+
+
+\end{document}

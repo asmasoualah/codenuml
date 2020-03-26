@@ -1,0 +1,47 @@
+
+\documentclass[11pt]{article}
+
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\def\F#1#2{\mathtt{Float[#1,#2]}}
+
+\begin{document}
+
+
+
+$$
+\frac{\mathsf{ufp}(\texttt{c})=u}
+     {\Gamma \vdash \texttt{c\#p}\ :\ \F{u}{p} }
+\hspace{2cm}
+\frac{x : \F{u}{p} \in \Gamma}
+     {\Gamma \vdash x\ :\ \F{u}{p} }
+$$
+
+$$\small
+\begin{array}{c}
+\texttt{+} : \Pi u_1:\texttt{int}. \Pi p_1:\texttt{int}.\Pi u_2:\texttt{int}. \Pi p_2:\texttt{int}.\\
+\quad\F{u_1}{p_1}\rightarrow\F{u_2}{p_2}\rightarrow\F{u_1+u_2+1}{u_1+u_2+1-\max\big(\mathtt{u_1}-\mathtt{p_1},\mathtt{u_2}-\mathtt{p_2}\big)
+-\iota\big(\mathtt{u_1}-\mathtt{p_1},\mathtt{u_2}-\mathtt{p_2}\big)
+}
+\end{array}
+$$
+
+$$\small
+\begin{array}{l}
+\texttt{+} : \Pi \mathtt{u_1}:\texttt{int}, \mathtt{p_1}:\texttt{int}, \mathtt{u_2}:\texttt{int}, \mathtt{p_2}:\texttt{int}.\\
+\hspace{1.5cm}\F{u_1}{p_1}\rightarrow\F{u_2}{p_2}\rightarrow\F{\mathcal{U}_+(\mathtt{u_1},\mathtt{u_2})}{\mathcal{P}_+(\mathtt{u_1},\mathtt{u_2})}
+\end{array}
+$$
+
+
+$$
+\frac{\Gamma,x: \mathsf{T}_1 \vdash e :  \mathsf{T}_2}
+     {\Gamma \vdash \lambda x:\mathsf{T}_1.e : \Pi x:\mathsf{T}_1 .  \mathsf{T}_2}
+\hspace{2cm}
+\frac{\Gamma \vdash e_1 : \Pi x: \mathsf{T}_1. \mathsf{T}_2\hspace{1cm} \Gamma \vdash e_2 :  \mathsf{T}_1}
+     {\Gamma \vdash e_1\ e_2 :  \mathsf{T}_2[x\mapsto e_2]}
+$$
+
+\end{document}

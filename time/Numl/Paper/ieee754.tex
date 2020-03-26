@@ -1,0 +1,141 @@
+
+\section{Case of the IEEE754 Floating-Point Arithmetic}
+\label{ieee}
+
+In this section, we introduce modified versions of the types of primitives introduced in Section
+\ref{secdefprim}. These modified versions are specific to the IEEE754 floating-point arithmetic \cite{IEEE754}.
+The types introduced in Figure \ref{figtypprim} for the primitives corresponding to the elementary operations
+$+$, $-$, $\times$ and $\div$ are not tailored for a specific arithmetic. They only assume
+that the system has enough bits to perform the operations in the format given by
+the types so that the results of the operations are not rounded. \texttt{Numl} interpreter 
+fulfills this requirement by performing all the numerical computations in multiple precision,
+using the GNU Multiple Precision Arithmetic library \texttt{GMP}.
+Indeed, the type inference enables to determine \textit{a priori} the precision needed by \texttt{GMP} for the
+values and arithmetic operations. An optimization would consists of also detecting when the
+computations fit into hardware formats (generally the formats of the IEEE754 arithmetic introduced in Figure
+\ref{formats}) in order to avoid the calls to \texttt{GMP} when possible. The type information
+also permits to generate code for the fixed-point arithmetic \cite{MENTOR}. In this case,
+if the precision of the formats corresponds to the types, no additional roundoff errors have to be added
+and the general equations of Figure \ref{figtypprim} hold again.
+In future work, we plan to develop a compiler for our language (in addition to the current interpreter)
+which, based on the formats given by the types,  generates code using either the IEEE754 or the multiple precision arithmetic (only when necessary).
+This compiler would also generate code for the fixed-point arithmetic. 
+
+
+\begin{figure}[tb]
+\hrule			
+$$
+\begin{array}{c}
+\varrho\in\{11,24,53,113\}\\
+\\
+\mathcal{P}_+^\varrho(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2}) =\\
+\\
+(\mathtt{u_1},\mathtt{u_2})+\sigma_+(\mathtt{s_1},\mathtt{s_2})-
+\max\left(\begin{array}{c}
+\mathtt{u_1}-\mathtt{p_1},\\
+\mathtt{u_2}-\mathtt{p_2},\\
+\mathcal{U}_{+}(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})-\varrho
+\end{array}\right)
+-\iota_3
+\left(\begin{array}{c}
+\mathtt{u_1}-\mathtt{p_1},\\
+\mathtt{u_2}-\mathtt{p_2},\\
+\mathcal{U}_{+}(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})-\varrho
+\end{array}\right)
+\\
+\\
+\\
+\begin{array}{c}
+\mathcal{P}_-^\varrho(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2}) =\\
+\\
+(\mathtt{u_1},\mathtt{u_2})+\sigma_-(\mathtt{s_1},\mathtt{s_2})- 
+\max\left(\begin{array}{c}
+\mathtt{u_1}-\mathtt{p_1},\\
+\mathtt{u_2}-\mathtt{p_2},\\
+\mathcal{U}_{-}(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})-\varrho
+\end{array}\right)
+-\iota_3
+\left(\begin{array}{c}
+\mathtt{u_1}-\mathtt{p_1},\\
+\mathtt{u_2}-\mathtt{p_2},\\
+\mathcal{U}_{-}(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})-\varrho
+\end{array}\right)
+\end{array}
+\\
+\\
+\\
+\mathcal{P}_\times^\varrho(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2}) = \\
+\\
+\mathtt{u_1}+\mathtt{u_2}+1-
+\max\left(\begin{array}{c}
+\mathtt{u_1}+\mathtt{u_2}+1-\mathtt{p_1},\\
+\mathtt{u_1}-\mathtt{u_2}+1-\mathtt{p_2},\\
+\mathtt{u_1}-\mathtt{u_2}+1-\varrho
+\end{array}\right)
+-\iota_3
+\left(\begin{array}{c}
+\mathtt{u_1}+\mathtt{u_2}+1-\mathtt{p_1},\\
+\mathtt{u_1}-\mathtt{u_2}+1-\mathtt{p_2},\\
+\mathtt{u_1}-\mathtt{u_2}+1-\varrho
+\end{array}\right)
+\\
+\\
+\\
+\mathcal{P}_\div^\varrho(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2})=
+\mathcal{P}_\times^\varrho(\mathtt{u_1},\mathtt{p_1},\mathtt{u_2},\mathtt{p_2})\\
+\\
+\\
+\iota_3(x,y,z)=\left\{\begin{array}{l}
+1 \ \text{if}\ x=y\ \vee\ x=z\ \vee\ y=z,\\
+0\ \text{otherwise}.
+\end{array}\right.
+\end{array}
+$$
+\hrule
+\caption{\label{prim754}Types of the IEEE754 floating-point arithmetic operators in precision $\varrho$.} 
+\end{figure}
+
+
+
+
+In practice, in many cases, one wants to use the IEEE754 floating-point arithmetic and not
+multiple precision libraries, for efficiency reasons or because these library are not available in
+certain contexts. In this case, the values and the results of the operations do not
+necessarily  fit inside the IEEE754 formats of Figure \ref{formats}, they must be rounded. 
+The IEEE754 Standard defines five rounding modes for elementary operations over
+floating-point numbers. These modes are towards $-\infty$, towards $+\infty$, towards zero,
+ to the nearest ties to even and to the nearest ties to away and we write them $\circ_{-\infty}$, $\circ_{+\infty}$, $\circ_0$, 
+$\circ_{\sim_e}$ and $\circ_{\sim_a}$, respectively.
+The semantics of the elementary operations $\ast\in\{+,\ -,\ \times,\ \div\}$  is then defined by
+\begin{equation}
+\label{roundoff}\small
+f_1\ \ast_{\circ}\ f_2\ =\ \circ\ (f_1\ \ast\ f_2) 
+\end{equation}
+%
+where $\circ\in\{\circ_{-\infty},\circ_{+\infty},\circ_{0},\circ_{\sim_e},\circ_{\sim_a}\}$ denotes the rounding mode.
+Equation (\ref{roundoff}) states that the result of a floating-point operation $\ast_\circ$ done
+with the rounding mode $\circ$ returns what we would obtain by performing the exact operation $\ast$
+and next rounding the result using $\circ$.
+The IEEE754 Standard also specifies how the square root function must be rounded in a similar way
+to Equation (\ref{roundoff}) but does not specify
+the roundoff of other functions like sin, log, etc.
+
+
+In the IEEE754 arithmetic, additional errors arise compared to the general context of Section \ref{secdefprim} and 
+the types of the primitives of Figure \ref{figtypprim}
+must be modified to correctly model the errors of this specific arithmetic.
+The types of the IEEE754 primitives in precision $\varrho\in \{11,24,53,113\}$, i.e. in half, single,
+double or quadruple precision, is given in Figure \ref{prim754}. We assume that the
+rounding mode is  $\sim\in\{\sim_a,\sim_e\}$ (to the nearest.)
+These equations model the fact that the accuracy of the result is dominated by either the error on
+first operand or on the second operand or on the rounding of the result in precision $\varrho$.
+For example, the error on $x+_\sim y$ is $e_+=\eps(x)+\eps(y)+\circ(x+y)$ with, by Equation (\ref{roundoff}),
+\begin{equation}
+\circ(x+y)< \frac{1}{2}\mathsf{ulp}(x+y)=\frac{1}{2}\mathsf{ufp}(x+y)-\varrho\enspace .
+\end{equation}
+The types of the other operators are obtained in a similar way to the addition.
+Let us also note that in the IEEE754 floating-point arithmetic the constants may no longer
+be in any precision. They must fit one of the formats given the standard.
+
+
+

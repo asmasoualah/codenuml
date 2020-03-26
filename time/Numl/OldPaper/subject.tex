@@ -1,0 +1,396 @@
+
+\begin{figure}[tb]
+\hrule
+\vspace{0.1cm}
+$$
+\frac{|\mathtt{r}-v_\bbf|< 2^{u-p+1} \quad \mathsf{ufp}(\mathtt{r})\le u\quad \mathsf{sign}(v_\bbf)\prec s}
+     {\mathtt{r\{s,u,p\} } \rightarrow_\bbf v_\bbf}\quad\textsf{(FVal)}
+\hspace{1cm}
+\frac{v_\bbr=\mathtt{r}}
+     {\mathtt{r\{s,u,p\} } \rightarrow_\bbr v_\bbr}\quad\textsf{(RVal)}
+$$
+
+$$
+\frac{e_0 \rightarrow e_0'}
+     {e_0\ast e_1 \rightarrow e_0'\ast e_1}\quad\textsf{(Op1)}
+\hspace{1cm}
+\frac{e_1 \rightarrow e_1'}
+     {v\ast e_1 \rightarrow v\ast  e_1'}\quad\textsf{(Op2)}\hspace{1cm}\ast\in\{+,-,\times,\div,+\_,-\_,\times\_,\div_\_\}
+$$
+
+
+$$
+\frac{v=v_0\ast v_1}
+     {v_0\ast v_1 \rightarrow v}\quad\textsf{(Op)}\hspace{1cm}\ast\in\{+,-,\times,\div,+\_,-\_,\times\_,\div_\_\}
+$$
+
+
+
+$$
+\frac{e_0 \rightarrow e_0'}
+     {e_0\Join e_1 \rightarrow e_0'\Join e_1}\quad\textsf{(Cmp1)}
+\hspace{1cm}
+\frac{e_1 \rightarrow e_1'}
+     {v\Join e_1 \rightarrow v\Join e_1'}\quad\textsf{(Cmp2)}
+\hspace{1cm}\Join\in\{<_{\{u,p\}},>_{\{u,p\}},<,>\}
+$$
+
+$$
+\frac{ b=(v_0^\bbf- v_1^\bbf\Join 2^{u-p+1})
+}
+     {v_0\Join_{\{u,p\}} v_1 \rightarrow_\bbf b}\quad\textsf{(FCmp)}
+\hspace{1cm}%\Join\in\{<_{\{u,p\}},>_{\{u,p\}}\}
+%$$
+%$$
+\frac{b=(v_0\Join v_1)
+}
+     {v_0\Join_{\{u,p\}} v_1 \rightarrow_\bbr b}\quad\textsf{(RCmp)}
+\hspace{1cm}\Join\in\{<_{\{u,p\}},>_{\{u,p\}}\}
+$$
+
+$$
+\frac{b=v_0\Join v_1}
+     {v_0\Join v_1 \rightarrow b}\quad\textsf{(ACmp)}
+\hspace{1cm}\Join\in\{=,\not=,<,>,\le,\ge\}
+$$
+
+
+$$
+\frac{e_1 \rightarrow e_1'}
+     {e_0\ e_1 \rightarrow e_0\ e_1'}\quad\textsf{(App1)}
+\hspace{1cm}
+\frac{e_0 \rightarrow e_0'}
+     {e_0\ v \rightarrow e_0'\ v}\quad\textsf{(App2)}
+\hspace{1cm}
+%\frac{}
+     {(\lambda x.e)\ v\rightarrow e\langle v/x\rangle}\quad\textsf{(Red)}
+$$
+$$
+\frac{e_0 \rightarrow e_0'}
+     {\mathtt{if}\ e_0\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+      \rightarrow \mathtt{if}\ e_0'\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+     }\quad\textsf{(Cond)}
+$$
+
+$$
+\frac{v=\mathtt{true}}
+     {\mathtt{if}\ v\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+      \rightarrow  e_1
+     }\quad\textsf{(CondTrue)}
+\hspace{1cm}
+\frac{v=\mathtt{false}}
+     {\mathtt{if}\ v\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+      \rightarrow  e_2
+     }\quad\textsf{(CondFalse)}
+$$
+
+$$
+     {\mathtt{rec}\ f\ x.e} \rightarrow \lambda x.e\langle \mathtt{rec}\ f\ x.e/f\rangle \quad\textsc{(Rec)}
+$$
+
+\vspace{0.1cm}
+\hrule
+\caption{\label{figsem}Operational semantics for our language.} 
+\end{figure}
+
+
+\section{Soundness of the Type System}
+\label{correct}
+
+In this section, we introduce a subject reduction theorem proving the consistency of our type system.
+We use two operational semantics $\rightarrow_\bbf$ and $\rightarrow_\bbr$ for the finite precision
+and exact arithmetics, respectively. 
+The exact semantics is used for proofs. Obviously, in practice, only
+the finite precision semantics is implemented.
+We write $\rightarrow$ whenever a reduction rule holds for either
+$\rightarrow_\bbf$ or $\rightarrow_\bbr$ (in this case, we assume that the same semantics $\rightarrow_\bbf$
+or $\rightarrow_\bbr$ is used in the lower and upper parts of the same sequent).
+The finite precision and exact semantics are  
+displayed in Figure \ref{figsem}.
+They concern the subset of the language of Equation (\ref{eqsyntax}) which do not deal with types
+and defined by
+ 
+\begin{equation}
+\label{eqsyntax2}
+\begin{array}{rcl}
+\mathsf{EvalExpr}\ni e&::=&\ \mathtt{r}\{s,u,p\}\in \mathsf{Real}_{u,p}\ |\ \mathtt{i}\in \mathsf{Int}
+\ |\ \mathtt{b}\in \mathsf{Bool}\ |\ \mathtt{id}\in\mathsf{Id} \\
+&&|\  \mathtt{if}\ e_0\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+\ |\ \lambda x.e
+\ |\ e_0\ e_1\ |\ \mathtt{rec}\ f\ x.e
+|\ e_0\ \ast\ e_1
+\end{array}\enspace .
+\end{equation}
+
+In Equation (\ref{eqsyntax2}), $\ast$ denotes an arithmetic operator
+$\ast\in\{+,-,\times,\div,+\_,-\_,\times\_,\div\_\}$.
+In Figure \ref{figsem}, Rule \textsc{(FVal)} of $\rightarrow_\bbf$ transforms a syntactic element 
+describing a real number
+$\mathtt{r\{s,u,p\} }$ in a certain format into a value $v_\bbf$.
+The finite precision value $v_\bbf$ is an approximation of $\mathtt{r}$ with
+an error less than the \textsf{ulp} of $\mathtt{r\{s,u,p\} }$.
+In the semantics $\rightarrow_\bbr$, the real number $\mathtt{r\{s,u,p\} }$ simply
+produces the value \texttt{r} without any approximation by Rule \textsf{(RVal)}.
+Rules \textsf{(Op1)} and  \textsf{(Op2)} evaluate the expressions corresponding to the operands
+of some binary operation and Rule  \textsf{(Op)} performs an operation $\ast\in\{+,-,\times,\div,+\_,-\_,\times\_,\div_\_\}$
+between two values $v_0$ and $v_1$. 
+
+Rules \textsf{(Cmp1)}, \textsf{(Cmp2)} and \textsf{(ACmp)} deal with comparisons.
+They are similar to Rules \textsf{(Op1)}, \textsf{(Op2)} and \textsf{(Op)} described earlier.
+Note that the operators $<,\ >,\ =,\ \not=$ concerned by Rule \textsf{(ACmp)} are polymorphic
+excepted that they do not accept arguments of type \texttt{real}.
+Rules \textsf{(FCmp)} and \textsf{(RCmp)} are for the comparison of \texttt{real} values. Rule 
+\textsf{(FCmp)} is designed 
+to avoid unstable tests by requiring that the distance between the 
+two compared values is greater than the \textsf{ulp} of the format in which the comparison is
+done. With this requirement, a condition cannot be invalidated by the roundoff errors.
+Let us also note  that, with this definition, $x<_{u,p} y \not\Rightarrow y>_{u,p} x$
+or $x>_{u,p} y \not\Rightarrow y<_{u,p} x$. For the semantics $\rightarrow_\bbr$, Rule \textsf{(RCmp)}
+simply compares the exact values.
+
+The other rules are standard and are identical in $\rightarrow_\bbf$
+and $\rightarrow_\bbr$. Rules \textsf{(App1)}, \textsf{(App2) and \textsf{(Red)}}
+are for applications and Rule \textsf{(Rec)} is for recursive functions. 
+ We write $e\langle v/x\rangle$ the term $e$ in which $v$ has been substituted
+to the free occurrences of $x$. Finally, Rules \textsf{(Cond)}, \textsf{(CondTrue)} and \textsf{(CondFalse)} 
+are for conditionals.
+
+
+\begin{figure}[tb]
+\hrule
+\vspace{0.1cm}
+$$
+\frac{}
+     {\Gamma \models (\texttt{i},\texttt{i}) :\ \mathtt{int} }\quad\textsc{(Int)}
+	 \hspace{1cm}
+\frac{}
+     {\Gamma \models (\texttt{b},\texttt{b}) :\ \mathtt{bool} }\quad\textsc{(Bool)}
+\hspace{1cm}
+\frac{\Gamma(\mathtt{id})=t}
+     {\Gamma \models (\mathtt{id},\mathtt{id})\ :\ t }\quad\textsc{(Id)}
+$$
+
+$$
+\frac{\mathsf{sign}(\texttt{r}) \prec s\quad \mathsf{ufp}(\texttt{r})\le u}
+     {\Gamma \models (\texttt{r\{s,u,p\}},\texttt{r\{s,u,p\}})\ :\ \F{s}{u}{p} }\quad\textsc{(SReal)}
+\hspace{0.5cm}
+\frac{|v_\bbr-v_\bbf|<2^{u-p+1}}
+     {\Gamma \models (v_\bbf,v_\bbr)\ :\ \F{s}{u}{p} }\quad\textsc{(VReal)}
+$$
+
+$$
+\frac{\Gamma \models (e_{1\bbf},e_{1\bbr}) : \F{s_1}{u_1}{p_1}\hspace{0.5cm} 
+      \Gamma \models (e_{2\bbf},e_{2\bbr}) : \F{s_1}{u_1}{p_1}
+\hspace{0.5cm}\ast\in\{+,-,\times,\div\}
+}
+     {\Gamma \models (e_{1\bbf}\ast e_{2\bbf},e_{1\bbr}\ast e_{2\bbr}) :  
+\F{\mathcal{S}_\ast(s_1,u_1,s_2,u_2)}{\mathcal{U}_\ast(s_1,u_1,s_2,u_2)}{\mathcal{P}_\ast(s_1,u_1,p_1,s_2,u_2,p_2)}
+}\quad\textsc{(ROp)}
+$$
+
+$$
+\frac{\Gamma \models (e_{1\bbf},e_{1\bbr}) : \F{s_1}{u}{p+1}\hspace{0.5cm} 
+      \Gamma \models (e_{2\bbf},e_{2\bbr}) : \F{s_1}{u}{p+1}
+\hspace{0.5cm}\ast\in\{<,>\}
+}
+     {\Gamma \models (e_{1\bbf}\Join_{u,p} e_{2\bbf},e_{1\bbr}\Join_{u,p} e_{2\bbr}) :  
+\mathtt{bool}
+}\quad\textsc{(RCmp)}
+$$
+
+$$
+\frac{\Gamma \models (e_{1\bbf},e_{1\bbr}) : \mathtt{int}\hspace{0.5cm} 
+      \Gamma \models (e_{2\bbf},e_{2\bbr}) : \mathtt{int}
+\hspace{0.5cm}{\ast\_}\in\{+\_,-\_,\times\_,\div\_\}
+}
+     {\Gamma \models (e_{1\bbf}\ {\ast\_}\ e_{2\bbf},e_{1\bbr}\ {\ast\_}\ e_{2\bbr}) :  
+\mathtt{int}
+}\quad\textsc{(IntOp)}
+$$
+
+$$
+\frac{\Gamma \models (e_{1\bbf},e_{1\bbr}) : t\hspace{0.5cm} 
+      \Gamma \models (e_{2\bbf},e_{2\bbr}) : t\hspace{0.5cm}t\not=\F{s}{u}{p}
+\hspace{1cm}\Join\in\{=,\not=,<,>,\le,\ge\}
+}
+     {\Gamma \models (e_{1\bbf}\Join e_{2\bbf},e_{1\bbr}\Join e_{2\bbr}) :  
+\mathtt{bool}
+}\quad\textsc{(ACmp)}
+$$
+
+
+$$
+\frac{
+\Gamma \models (e_{0\bbf},e_{0\bbr})\ :\ \mathtt{bool}\hspace{0.5cm}\Gamma \models (e_{1\bbf},e_{1\bbr})\ :\ t_1
+\hspace{0.5cm} \Gamma \models (e_{2\bbf},e_{2\bbr})\ :\ t_2
+\hspace{0.5cm} t=t_1\sqcup t_2}
+{\Gamma\models (\mathtt{if}\ e_{0\bbf}\ \mathtt{then}\ e_{\bbf}1\ \mathtt{else}\ e_{2\bbf},
+                \mathtt{if}\ e_{0\bbr}\ \mathtt{then}\ e_{1\bbr}\ \mathtt{else}\ e_{2\bbr})\ :\  t}\quad\textsc{(Cond)}
+$$
+
+$$
+\frac{\Gamma,x :t_1 \models (e_\bbf,e_\bbr) :  t_2}
+     {\Gamma \models (\lambda x.e_\bbf,\lambda x.e_\bbr) : \Pi x:t_1 .  t_2}\quad\textsc{(Abs)}
+$$
+
+$$
+\frac{\Gamma \models (e_{1\bbf},e_{1\bbr}) : \Pi x: t_0. t_1\hspace{1cm} \Gamma \models (e_{2\bbf},e_{2\bbr}) :  t_2
+\hspace{1cm} t_2\sqsubseteq t_0
+}
+     {\Gamma \models (e_{1\bbf}\ e_{2\bbf},e_{1\bbr}\ e_{2\bbr}) :  t_2[x\mapsto e_2]}\quad\textsc{(App)}
+$$
+
+$$
+\frac{\Gamma,x :t_1,f:\Pi.y:t_1.t_2  \models (e_\bbf,e_\bbr) :  t_2}
+     {\Gamma \models (\mathtt{rec}\ f\ x.e_\bbf,\mathtt{rec}\ f\ x.e_\bbr) : \Pi x:t_1 .  t_2}\quad\textsc{(Rec)}
+$$
+\vspace{0.1cm}
+\hrule
+\caption{\label{figmod}Inference rules for the simulation relation $\models$ used in our subject reduction theorem.} 
+\end{figure}
+
+
+The rest of this section is dedicated to our subject reduction theorem.
+First of all, we need to relate the traces of $\rightarrow_\bbf$ and $\rightarrow_\bbr$.
+We introduce new judgments 
+\begin{equation}\label{eqmod}
+\Gamma \models (e_\bbf,e_\bbr)\ :\ t\enspace . 
+\end{equation}
+Intuitively, Equation (\ref{eqmod}) means that  expression $e_\bbf$ simulates 
+$e_\bbr$ up to accuracy $t$. In this case, $e_\bbf$
+is syntactically equivalent to $e_\bbr$ up to the values which, in $e_\bbf$,
+are approximations of the values of $e_\bbr$. The quantification of the approximation
+is given by type $t$. 
+
+Formally, $\models$ is defined in Figure \ref{figmod}. These rules are similar to the typing rules
+rules of Figure \ref{figtyp} excepted that they operate on pairs $(e_\bbf,e_\bbr)$.
+They are also designed for the language of Equation (\ref{eqsyntax2}) and, consequently,
+deal with the elementary arithmetic operations $+,\ -,\ \times$ and $\div$ as well
+as the comparison operators. 
+The difference between the rules of Figure \ref{figtyp} and Figure \ref{figmod} is
+in Rule \textsf{(VReal)} which states that a  \texttt{real} value $v_\bbr$
+is correctly simulated by a value $v_\bbf$ up to accuracy $\F{s}{u}{p}$ if
+$|v_\bbr-v_\bbf|<2^{u-p+1}$. 
+It is easy to show, by examination of the rules of figures \ref{figtyp} and \ref{figmod}
+that
+\begin{equation}
+\Gamma \models (e_\bbf,e_\bbr)\ :\ t\ \Longrightarrow\Gamma \vdash e_\bbf\ :\ t\enspace .
+\end{equation}
+
+We introduce now Lemma \ref{wsubject} which states the soundness of the type system for one
+reduction step. 
+Basically, this lemma states that types are preserved by reduction and that 
+concerning the values of type \texttt{real}, the distance between the finite precision value
+and the exact value is less than the \textsf{ulp} given by the format of the type.
+
+
+\begin{lemma}[Weak subject reduction]
+\label{wsubject}
+If\ $\Gamma \models (e_\bbf,e_\bbr)\ : t$ and if  $e_\bbf\rightarrow_\bbf e_\bbf'$ and
+$e_\bbr\rightarrow_\bbr e_\bbr'$ then $\Gamma \models (e_\bbf',e_\bbr')\ : t$. 
+%In addition,
+%if $e\equiv v$ and $t=\mathtt{real\{s,u,p\}}$ then $|\mathbb{R}(v)-\mathbb{F}(v)|< 2^{u-p+1}$.
+\end{lemma} 
+
+\begin{proof}
+By induction on the structure of expressions
+and case examination on the possible transition rules of Figure \ref{figsem}.
+\begin{itemize}
+%%%%%%%%%%%%
+\item If $e_\bbf\equiv e_\bbr\equiv\mathtt{r\{s,u,p\}}$ then %, from  Rule \textsf{(SReal)} 
+%of Figure \ref{figmod}, 
+$\Gamma \models (\texttt{r\{s,u,p\}},\texttt{r\{s,u,p\}})\ :\ \F{s}{u}{p} $ and,
+from the reduction rules \textsf{(FVal)} and \textsf{(RVal)} of Figure \ref{figsem},
+$\mathtt{r\{s,u,p\}} \rightarrow_\bbf v_\bbf$ and
+$\mathtt{r\{s,u,p\}} \rightarrow_\bbr v_\bbr$
+with $|v_\bbf-v_\bbf|< 2^{u-p+1}$.
+So $\Gamma\models (v_\bbf,v_\bbr)\ :\ \F{s}{u}{p} $.
+%%%%%%%%%%%
+\item If $e_\bbf\equiv e_{0\bbf}\ast e_{1\bbf}$ and $e_\bbr\equiv e_{0\bbr}\ast e_{1\bbr}$
+ then several cases must be distinguished. 
+\begin{itemize}
+\item If $e_\bbf\equiv v_{0\bbf}\ \ast\ v_{1\bbf}$ and $e_\bbr\equiv v_{0\bbr}\ \ast\ v_{1\bbr}$ then, by induction hypothesis,
+$\Gamma\models (v_{0\bbf},v_{0\bbr})\ :\mathtt{real\{s_0,u_0,p_0\}}$, 
+$\Gamma\models (v_{1\bbf},v_{1\bbr})\ :\mathtt{real\{s_1,u_1,p_1\}}$ and, consequently, from
+Rule \textsc{(VReal)},
+\begin{equation}\label{eqproof2}
+|v_{0\bbr}-v_{0\bbf}|<2^{u_0-p_0+1}\quad \text{and}\quad|v_{1\bbr}-v_{1\bbf}|<2^{u_1-p_1+1}\enspace. 
+\end{equation}
+Following Figure \ref{figtypprim}, the type $t$ of $e$ is
+$$
+\begin{array}{rcl}
+t&=& \big(\Pi \mathtt{s_1}:\texttt{int},\mathtt{u_1}:\texttt{int}, \mathtt{p_1}:\texttt{int},
+       \mathtt{s_2}:\texttt{int},\mathtt{u_2}:\texttt{int}, \mathtt{p_2}:\texttt{int}.\\
+%\hspace{0.8cm}
+&&\quad \F{s_1}{u_1}{p_1}\rightarrow\F{s_2}{u_2}{p_2}\rightarrow \\
+&&\quad \rightarrow\F{\mathcal{S}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{U}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{P}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2})}\\
+&&\big)\ \mathtt{s_1\ u_1\ p_1\ s_2\ u_2\ p_2}\enspace ,\\
+&=&\F{\mathcal{S}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{U}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{P}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2})}\\
+&=&\mathtt{real\{s,u,p\}}
+\end{array}
+$$
+By Rule \textsc{(Op)}, $e\rightarrow_\bbf v_\bbf$ and $e\rightarrow_\bbr v_\bbr$ and, 
+by Theorem \ref{thop}, with  the assumptions of Equation (\ref{eqproof2}), we know that $|v_\bbr-v_\bbf|<2^{u-p+1}$.
+Consequently, $\Gamma\models (v_\bbf,v_\bbr)\ :\ \F{s}{u}{p}$.
+\item If $e_\bbf\equiv v_{0\bbf}\ \ast\ v_{1\bbf}$ and $e_\bbr\equiv v_{0\bbr}\ \ast\ v_{1\bbr}$
+ with $\Gamma\models( v_0, v_1)\ :\ \mathtt{int}$ then,
+by Rule \textsf{(Op)}, $e\rightarrow (v,v)$ and,
+by Equation (\ref{eqtypint}), $\Gamma\vdash v\ :\ \mathtt{int}$.
+If $e\equiv e_0\ast e_1$ then, by Rule $\textsf{(Op1)}, e\rightarrow e_0\ast e_1'$ and we conclude by
+induction hypothesis. The case $e\equiv e_0\ast\ v_1$ is similar to the former one.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item If $e_\bbf\equiv e_{0\bbf}\Join_{u,p} e_{1\bbf}$ and $e_\bbr\equiv e_{0\bbr}\Join_{u,p} e_{1\bbr}$
+then several cases have to be examined.
+\begin{itemize}
+\item If $e_\bbf\equiv v_{0\bbf}\Join_{u,p} v_{1\bbf}$ and
+$e_\bbr\equiv v_{0\bbr}\Join_{u,p} v_{1\bbr}$
+ then by rules \textsf{(FCmp)} and \textsf{(RCmp)}
+$e_\bbf\rightarrow_\bbf b_\bbf$, $e_\bbr\rightarrow_\bbr b_\bbr$ with
+\begin{equation}\label{eqproofjoin}
+b_\bbf=     v_{0\bbf}- v_{1\bbf} \Join_{\{u,p\}} 2^{u-p+1}
+\quad\text{and}\quad
+b_\bbf=     v_{0\bbr} -v_{1\bbr} \Join_{\{u,p\}} 0 \enspace .
+\end{equation}
+By rule \textsf{(RCmp)} of Figure \ref{figmod}, $\Gamma\models (v_{0\bbf},v_{1\bbf})\ :\ \F{s}{u}{p}$
+and $\Gamma\models (v_{0\bbr},v_{1\bbr})\ :\ \F{s}{u}{p}$.
+Consequently,
+\begin{equation}
+|v_{0\bbr}-v_{0\bbf}| < 2^{u-p+1}\quad\text{and}\quad |v_{1\bbr}-v_{1\bbf}| < 2^{u-p+1}
+\end{equation}
+By combining equations (\ref{eqproofjoin}) and (\ref{eqproofjoin}), we obtain that
+\begin{equation}
+|(v_{0\bbr}-v_{1\bbr})-(v_{0\bbf}-v_{1\bbf})| < 2^{u-p}\enspace .
+\end{equation}
+Consequently, $b_\bbf=b_\bbr$ and we conclude that $\Gamma\models (b_\bbf,b_\bbr)\ : \mathtt{bool}$.
+\item The other cases for $e_\bbf\equiv e_{0\bbf}\Join_{u,p} e_{1\bbf}$
+are similar to the cases $e_\bbf\equiv v_{0\bbf}\ast v_{1\bbf}$ examined previously.
+\end{itemize}
+\item The other cases simply follow the structure of the terms, by application of the induction hypothesis.
+\end{itemize}
+\end{proof}
+
+
+
+Let $\rightarrow^*$ denote the reflexive transitive closure of $\rightarrow$.
+Theorem \ref{subject} expresses the soundness of our type system for sequences of reduction
+of arbitrary length.
+
+\begin{theorem}[Subject reduction]
+\label{subject}
+If\ $\Gamma \vdash e\ : t$ and $e\rightarrow^* e'$ then $\Gamma \vdash e'\ : t$. In addition,
+if $e\equiv v$ and $t=\mathtt{real\{s,u,p\}}$ then $|\mathbb{R}(v)-\mathbb{F}(v)|< 2^{u-p+1}$.
+\end{theorem} 
+
+\begin{proof}
+By induction on the length of the reduction sequence, using Lemma \ref{wsubject}.
+\end{proof}
+
+Theorem \ref{subject} assert the soundness of our type system. It states that the evaluation of an expression of type $\F{s}{u}{p}$ yields
+a result of accuracy $2^{u-p+1}$.
+
+

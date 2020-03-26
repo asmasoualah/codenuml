@@ -1,0 +1,15 @@
+Some usual problems:
+
+*** COMPILATION
+**** On my Ultra Sparc, ML GMP won't link with GNU MP.
+
+On the Ultra Sparc under Solaris, GNU MP tries to use Sun's
+proprietary compiler cc with option -xtarget=v9 to generate code
+optimised for the Ultra Sparc. This unfortunately generates 64-bit
+code, which cannot be linked with 32-bit code.
+
+As of version 3.04, Objective Caml cannot be compiled for 64-bit Ultra
+Sparc, at least because of some forbidden constructs in some assembler
+support files.
+
+The solution is to configure GNU MP with ABI=32.

@@ -1,0 +1,220 @@
+
+\begin{figure}[tb]
+\hrule
+\vspace{0.1cm}
+$$
+\frac{|\mathtt{r}-v^\bbf|< 2^{u-p+1} \mathsf{sign}(v^\bbf)\prec s}
+     {\mathtt{r\{s,u,p\} } \rightarrow_\bbf v^\bbf}
+\hspace{1cm}
+\frac{v=\mathtt{r}}
+     {\mathtt{r\{s,u,p\} } \rightarrow_\bbr v^\bbr}\quad\textsf{(Real)}
+$$
+
+$$
+\frac{e_0 \rightarrow e_0'}
+     {e_0\ast e_1 \rightarrow e_0'\ast e_1}\quad\textsf{(Op1)}
+\hspace{1cm}
+\frac{e_1 \rightarrow e_1'}
+     {v\ast e_1 \rightarrow v\ast  e_1'}\quad\textsf{(Op2)}\hspace{1cm}\ast\in\{+,-,\times,\div,+\_,-\_,\times\_,\div_\_\}
+$$
+
+
+$$
+\frac{v_0=(v_0^\bbf,v_0^\bbr) \quad v_1=(v_1^\bbf,v_1^\bbr)\quad v=(v_0^\bbf\ast v_1^\bbf,v_0^\bbr\ast v_1^\bbr)
+}
+     {v_0\ast v_1 \rightarrow v}\quad\textsf{(RealOp)}\hspace{1cm}\ast\in\{+,-,\times,\div\}
+$$
+
+$$
+\frac{v=(v_0\ast v_1)}
+     {v_0\ {\ast\_}\ v_1 \rightarrow v}\quad\textsf{(IntOp)}\hspace{1cm}{\ast\_}\in\{+\_,-\_,\times\_,\div\_\}
+$$
+
+
+$$
+\frac{e_0 \rightarrow e_0'}
+     {e_0\Join e_1 \rightarrow e_0'\Join e_1}\quad\textsf{(Cmp1)}
+\hspace{1cm}
+\frac{e_1 \rightarrow e_1'}
+     {v\Join e_1 \rightarrow v\Join e_1'}\quad\textsf{(Cmp2)}
+\hspace{1cm}\Join\in\{<_{\{u,p\}},>_{\{u,p\}},<,>\}
+$$
+
+
+$$
+\frac{v_0=(v_0^\bbf,v_0^\bbr) \quad v_1=(v_1^\bbf,v_1^\bbr)\quad b=(v_0^\bbf- v_1^\bbf\Join 2^{u-p+1})
+}
+     {v_0\Join_{\{u,p\}} v_1 \rightarrow b}\quad\textsf{(RealCmp)}
+\hspace{1cm}\Join\in\{<_{\{u,p\}},>_{\{u,p\}}\}
+$$
+
+$$
+\frac{b=v_0\Join v_1}
+     {v_0\Join v_1 \rightarrow b}\quad\textsf{(IntCmp)}
+\hspace{1cm}\Join\in\{<,>\}
+$$
+
+
+$$
+\frac{e_1 \rightarrow e_1'}
+     {e_0\ e_1 \rightarrow e_0\ e_1'}\quad\textsf{(App1)}
+\hspace{1cm}
+\frac{e_0 \rightarrow e_0'}
+     {e_0\ v \rightarrow e_0'\ v}\quad\textsf{(App2)}
+\hspace{1cm}
+%\frac{}
+     {(\lambda x.e)\ v\rightarrow e\langle v/x\rangle}\quad\textsf{(Red)}
+$$
+$$
+\frac{e_0 \rightarrow e_0'}
+     {\mathtt{if}\ e_0\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+      \rightarrow \mathtt{if}\ e_0'\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+     }\quad\textsf{(Cond)}
+$$
+
+$$
+\frac{v=\mathtt{true}}
+     {\mathtt{if}\ v\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+      \rightarrow  e_1
+     }\quad\textsf{(CondTrue)}
+\hspace{1cm}
+\frac{v=\mathtt{false}}
+     {\mathtt{if}\ v\ \mathtt{then}\ e_1\ \mathtt{else}\ e_2
+      \rightarrow  e_2
+     }\quad\textsf{(CondFalse)}
+$$
+
+$$
+     {\mathtt{rec}\ f\ x.e} \rightarrow \lambda x.e\langle \mathtt{rec}\ f\ x.e/f\rangle \quad\textsc{(Rec)}
+$$
+
+\vspace{0.1cm}
+\hrule
+\caption{\label{figsem}Operational semantics for our language.} 
+\end{figure}
+
+
+\section{Soundness of the Type System}
+\label{correct}
+
+In this section, we introduce a subject reduction theorem proving the consistency of our type system.
+We use an instrumented operational semantics displayed in Figure \ref{figsem}.
+This semantics computes both the finite 
+precision result  and the exact result of the evaluation of a real expression. The exact result
+is integrated to the semantics for proofs reasons. Obviously, in our implementation, only
+the finite precision computations are done.
+
+In our semantics, a real value $v$ is a pair $v=(v^\bbf,v^\bbr)$ where $v^\bbf$ is the finite precision value
+and $v^\bbr$ the exact value. We use the functions   $\bbf(v)=v^\bbf$ and $\bbr(v)=v^\bbr$.
+In Figure \ref{figsem}, Rule \textsc{(Real)} transforms a syntactic element describing a real number
+$\mathtt{r\{s,u,p\} }$ in a certain format into a value $v=(v^\bbf,v^\bbr)$. The exact value $v^\bbr$ is 
+exactly $\mathtt{r}$ while the finite precision value is an approximation of $\mathtt{r}$ with
+an error less than the \textsf{ulp} of $\mathtt{r\{s,u,p\} }$.
+
+Rules \textsf{(Op1)} and  \textsf{(Op2)} evaluate the expressions corresponding to the operands
+of some binary operation and Rule  \textsf{(RealOp)} performs an operation $\ast\in\{+,-,\times,\div,+\_,-\_,\times\_,\div_\_\}$
+between two values $v_0$ and $v_1$. Note that the operation is done is pairwise between the components
+$\bbf(v_i)$ and $\bbr(v_i)$, $0\le i\le 1$. Rule \textsf{(IntOp)} is a classical rule to perform some integer operation
+between two values. 
+
+Rules \textsf{(Cmp1)}, \textsf{(Cmp2)} and \textsf{(IntCmp)} deal with comparisons.
+They are similar to Rules \textsf{(Op1)}, \textsf{(Op2)} and \textsf{(IntOp)} described earlier.
+Rule \textsf{(RealCmp)} is for the comparison of \texttt{real} values. This rule is designed
+to avoid unstable tests. An unstable test is a comparison between two approximate values
+such that the result of the comparison is falsened by the approximation error.
+For instance, if we reuse an example of Section \ref{over}, in IEEE754 double precision,
+the condition $10^{16}+1=10^{16}$ evaluates to \texttt{true}. We need to avoid such situations
+in our language in order to preserve our subject reduction theorem (we need the control-flow
+be the same in the finite precision and exact semantics). 
+Our comparison operators 
+
+The other rules are standard. Rules \textsf{(App1)}, \textsf{(App2) and \textsf{(Red)}}
+are for applications and Rule \textsf{(Rec)} is for recursive functions. 
+ We write $e\langle v/x\rangle$ the term $e$ in which $v$ has been substituted
+to the free occurrences of $x$. Finally, Rules \textsf{(Cond)}, \textsf{(CondTrue)} and \textsf{(CondFalse)} for
+conditionnals.
+
+We introduce now Lemma \ref{wsubject} which states the soundness of the type system for one
+reduction step. Basically, this lemma states that types are preserved by reduction and that 
+concerning the values of type \texttt{real}, the distance between the finite precision value
+and the exact value is less than the \textsf{ulp} given by the format of the type.
+
+
+\begin{lemma}[Weak subject reduction]
+\label{wsubject}
+If\ $\Gamma \vdash e\ : t$ and $e\rightarrow e'$ then $\Gamma \vdash e'\ : t$. In addition,
+if $e\equiv v$ and $t=\mathtt{real\{s,u,p\}}$ then $|\mathbb{R}(v)-\mathbb{F}(v)|< 2^{u-p+1}$.
+\end{lemma} 
+
+\begin{proof}
+By induction on the structure of expressions
+and case examination on the possible transition rules of Figure \ref{figsem}.
+\begin{itemize}
+%%%%%%%%%%%%
+\item If $e\equiv \mathtt{r\{s,u,p\}}$ then, from typing rule \textsf{(Real)} 
+of Figure \ref{figtyp}, $\Gamma \vdash \texttt{r\{s,u,p\}}\ :\ \F{s}{u}{p} $ and,
+from reduction rule \textsf{(Real)} of Figure \ref{figsem},
+$\mathtt{r\{s,u,p\}} \rightarrow (v^\bbf,v^\bbr)$
+with $|\mathtt{r}-v^\bbf|< 2^{u-p+1}$ and $v^\bbr=\mathsf{r}$.
+So $|\mathbb{R}(v)-\mathbb{F}(v)|=|\mathtt{r}-v^\bbf|< 2^{u-p+1}$.
+%%%%%%%%%%%
+\item If $e\equiv e_0\ast e_1$ then several cases must be distinguished. 
+\begin{itemize}
+\item If $e\equiv v_0\ \ast\ v_1$ then, by induction hypothesis,
+$\Gamma\vdash v_0:\mathtt{real\{s_0,u_0,p_0\}}$, 
+$\Gamma\vdash v_1:\mathtt{real\{s_1,u_1,p_1\}}$,
+\begin{equation}\label{eqproof2}
+\eps(v_0)<2^{u_0-p_0+1}\quad \text{and}\quad\eps(v_1)<2^{u_1-p_1+1}\enspace. 
+\end{equation}
+Following Figure \ref{figtypprim}, the type $t$ of $e$ is
+$$
+\begin{array}{rcl}
+t&=& \big(\Pi \mathtt{s_1}:\texttt{int},\mathtt{u_1}:\texttt{int}, \mathtt{p_1}:\texttt{int},
+       \mathtt{s_2}:\texttt{int},\mathtt{u_2}:\texttt{int}, \mathtt{p_2}:\texttt{int}.\\
+%\hspace{0.8cm}
+&&\quad \F{s_1}{u_1}{p_1}\rightarrow\F{s_2}{u_2}{p_2}\rightarrow \\
+&&\quad \rightarrow\F{\mathcal{S}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{U}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{P}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2})}\\
+&&\big)\ \mathtt{s_1\ u_1\ p_1\ s_2\ u_2\ p_2}\enspace ,\\
+&=&\F{\mathcal{S}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{U}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{s_2},\mathtt{u_2})}
+{\mathcal{P}_\ast(\mathtt{s_1},\mathtt{u_1},\mathtt{p_1},\mathtt{s_2},\mathtt{u_2},\mathtt{p_2})}\\
+&=&\mathtt{real\{s,u,p\}}
+\end{array}
+$$
+By Rule \textsc{(RealOp)}, $e\rightarrow v$ and 
+by Theorem \ref{thop}, with  the assumptions of Equation (\ref{eqproof2}), we know that $\eps(v)=|\bbr(v)-\bbf(v)|<2^{u-p+1}$.
+\item If $e\equiv v_0\ast v_1$ with $v_0\in\mathsf{Int}$ and $v_1\in\mathsf{Int}$ then,
+by Rule \textsf{(IntOp)}, $e\rightarrow v$ and,
+by Equation (\ref{eqtypint}), $\Gamma\vdash v\ :\ \mathtt{int}$.
+If $e\equiv e_0\ast e_1$ then, by Rule $\textsf{(Op1)}, e\rightarrow e_0\ast e_1'$ and we conclude by
+induction hypothesis. The case $e\equiv e_0\ast\ v_1$ is similar to the former one.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item If $e\equiv e_0\Join_{u,p} e_1$ then several cases have to be examined.
+\begin{itemize}
+\item If $e\equiv v_0\Join_{u,p} v_1$
+\end{itemize}
+\end{itemize}
+\end{proof}
+
+
+
+Let $\rightarrow^*$ denote the reflexive transitive closure of $\rightarrow$.
+Theorem \ref{subject} expresses the soundness of our type system for sequences of reduction
+of arbitrary length.
+
+\begin{theorem}[Subject reduction]
+\label{subject}
+If\ $\Gamma \vdash e\ : t$ and $e\rightarrow^* e'$ then $\Gamma \vdash e'\ : t$. In addition,
+if $e\equiv v$ and $t=\mathtt{real\{s,u,p\}}$ then $|\mathbb{R}(v)-\mathbb{F}(v)|< 2^{u-p+1}$.
+\end{theorem} 
+
+\begin{proof}
+By induction on the length of the reduction sequence, using Lemma \ref{wsubject}.
+\end{proof}
+
+
+
+

@@ -1,0 +1,22 @@
+
+1.234 ;;
+
+1.234{4} ;;
+
+let f = fun x -> x + 1.0 ;;
+
+verbose true ;;
+
+f ;;
+
+verbose false ;;
+
+f 1.234 ;;
+
+f 1.234{4} ;;
+
+(1.0e15 + 1.0) - 1.0e15 ;;
+
+let rec taylor x{-4,25} xn i n = 
+  if (i>n) then 0.0{*,0,10}
+  else xn + (taylor x (x * xn) (i +_ 1) n) ;;
