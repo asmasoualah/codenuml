@@ -89,7 +89,20 @@ let rec genGmp e = match e with
                              let a = int_of_float (ceil (log10 ff')) in
                              let b = int_of_float (ceil (log10 (pow 2.0 (u-p)))) in 
                              let (s0,i) =F.to_string_exp_base_digits 10 (a-b+1) f in 
-                               ("(F.from_float "^s0^")")
+                             let signe = String.get s0 0 in
+                             let s = if (signe='-') then String.sub s0 1 ((String.length s0)-1) 
+                                     else s0  
+                             in  
+                             let s' = s^(String.make p '0') in
+                             let se = if (i>0) then (String.sub s' 0 i) else "0" in
+                             let sd = if (i>0) then (String.sub s' i (a-b-i+1))
+                                               else (String.sub ((String.make (abs i) '0')^s') 0 (a-b+1))   
+                             in
+                             let s'' = se^"."^(String.sub sd 0 ((String.length sd)-1)) in
+                             let err = pow 2.0 (u-p) in
+                             let s''' = (if (signe='-') then "-" else "")^s''(*^" +/- "^(string_of_float err)*) 
+                             in ("(F.from_float "^s'''^")")
+                               
                   
 
 | Int(e) -> string_of_int(e)
