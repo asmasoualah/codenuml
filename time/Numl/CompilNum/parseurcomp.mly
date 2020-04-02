@@ -8,9 +8,8 @@ open Print ;;
 
 %}
 
-%type < Types.toplevel > program
 %type < Types.toplevel list > compile
-%start program
+%start compile
 
 
 %token PLUS MINUS MULT DIV SQRT IF THEN ELSE BRABEG BRAEND
@@ -28,7 +27,7 @@ open Print ;;
 
 %%
 compile        : program EOF                                   { $1::[] }
-               | program program                               { $1@$2 }
+               | program compile                               { $1::$2 }
                ;
 program		: expr STOP		                       { TopExpr($1) }
                 | LET ID EQ expr STOP                          { TopAssign($2,$4) }	
