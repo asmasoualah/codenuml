@@ -8,7 +8,6 @@ open Checker ;;
 open Gmp ;;
 open Compile ;;
 open Compilegmp;;
-open Nana;;
 open Printf ;;
 
 print_string "\nWelcome to NuML!" ;;
@@ -116,7 +115,7 @@ let rec iterCmdList cl fic fig = match cl with
 let _ =
            let _ = symb := 0 ; symbE := 0 in
            let lexbuf = Lexing.from_channel stdin in
-           let c = Parseurcomp.compile Lexer.token lexbuf in
+           let c = Parseurcomp.compile Lexercomp.token lexbuf in
            let fic = open_out "comp.ml" in
            let fig = open_out "gomp.ml" in
            let _ = iterCmdList c fic fig in
