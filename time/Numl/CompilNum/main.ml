@@ -16,7 +16,6 @@ open Checker ;;
 open Gmp ;;
 open Compile ;;
 open Compilegmp;;
-open Nana;;
 open Printf ;;
 
 print_string "\nWelcome to NuML!" ;;
