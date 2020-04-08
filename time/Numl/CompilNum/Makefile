@@ -21,7 +21,7 @@ numl:  $(CHECK-OPT)
 	$(OCAMLOPT) $(INCLUDES) -o numl $(CHECKOPT)
 
 numlcc:  $(CHECK-OPTCOMP)
-	$(OCAMLOPT) $(INCLUDES) -o numl $(CHECKOPTCOMP)
+	$(OCAMLOPT) $(INCLUDES) -o numlcc $(CHECKOPTCOMP)
 
 
 
