@@ -10,8 +10,6 @@ open Compile ;;
 open Compilegmp;;
 open Printf ;;
 
-print_string "\nWelcome to NuML!" ;;
-print_string "\nStrongly typed numerical computations in ML..." ;;
 let continue = ref true ;;
 
 
@@ -72,7 +70,6 @@ in t3
 let rec iterCmdList cl fic fig = match cl with
                  [] -> ()
                  | c::cs ->
-             (try (
               match c with
                 TopExpr(e) ->
                                   let typeEnv' = copyTypeEnv !typeEnv [] in
@@ -104,24 +101,29 @@ let rec iterCmdList cl fic fig = match cl with
                                              let _ = output_string fig k in
                                                 iterCmdList cs fic fig
                                                
-         ) with
-          Failure(s) -> print_string ("Parse errori: "^s)
-         | Parsing.Parse_error -> print_string ("Parse error")
-         | Error(e) -> print_string ("Error: "^e)
-         | RecTypeError(_,e) -> print_string ("\nError: "^e)
-         )
+        
 ;;
 
 let _ =
            let _ = symb := 0 ; symbE := 0 in
-           let lexbuf = Lexing.from_channel stdin in
-           let c = Parseurcomp.compile Lexercomp.token lexbuf in
-           let test= open_in "test.ml" in
-           let fic = open_out "comp.ml" in
-           let fig = open_out "gomp.ml" in
-           let _ = iterCmdList c fic fig in
-           let _ = close_in test in 
-           let _ = close_out fic in
-           let _ = close_out fig in () ;;
+           let ficName = Sys.argv.(1) in
+           let ficSrc = open_in ficName in
+           try (
+             let lexbuf = Lexing.from_channel ficSrc in
+             let c = Parseurcomp.compile Lexercomp.token lexbuf in
+             let ficFlt = (String.sub ficName 0 ((String.length ficName)-3))^"_flt.ml" in
+             let ficGmp = (String.sub ficName 0 ((String.length ficName)-3))^"_gmp.ml" in
+             let fic = open_out ficFlt in
+             let fig = open_out ficGmp in
+             let _ = iterCmdList c fic fig in
+             let _ = close_in ficSrc in 
+             let _ = close_out fic in
+             let _ = close_out fig in () 
+           ) with
+             Failure(s) -> print_string ("Parse error at line "^(string_of_int (!codeLine))^"\n")
+           | Parsing.Parse_error -> print_string ("Parse error at line "^(string_of_int (!codeLine))^"\n")
+           | Error(e) -> print_string ("Error: "^e^"\n")
+           | RecTypeError(_,e) -> print_string ("\nError: "^e^"\n")
+         ;;
 
 
