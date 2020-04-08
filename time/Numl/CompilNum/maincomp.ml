@@ -116,9 +116,11 @@ let _ =
            let _ = symb := 0 ; symbE := 0 in
            let lexbuf = Lexing.from_channel stdin in
            let c = Parseurcomp.compile Lexercomp.token lexbuf in
+           let test= open_in "test.ml" in
            let fic = open_out "comp.ml" in
            let fig = open_out "gomp.ml" in
            let _ = iterCmdList c fic fig in
+           let _ = close_in test in 
            let _ = close_out fic in
            let _ = close_out fig in () ;;
 
