@@ -29,13 +29,13 @@ let rec genGmp e = match e with
                             else
                               let p = getEnvComplete f !opEnvUP 0 in 
                                 if ((String.compare (String.sub f 0 3) "+__")=0) then
-                                  "F.add_prec " ^ (string_of_int(p))^  "(" ^(v1)^") (" ^(v2)^")"        
+                                  "(F.add_prec " ^ (string_of_int(p))^  "(" ^(v1)^") " ^(v2)^")"        
                                 else if ((String.compare (String.sub f 0 3) "-__")=0) then
-                                       "F.sub_prec " ^ (string_of_int(p))^  "(" ^(v1)^") (" ^(v2)^")"        
+                                       "(F.sub_prec " ^ (string_of_int(p))^  "(" ^(v1)^") " ^(v2)^")"        
                                      else if ((String.compare (String.sub f 0 3) "*__")=0) then
-                                       "F.mul_prec " ^ (string_of_int(p))^  "(" ^(v1)^") (" ^(v2)^")"
+                                       "(F.mul_prec " ^ (string_of_int(p))^  "(" ^(v1)^") " ^(v2)^")"
                                           else if ((String.compare (String.sub f 0 3) "/__")=0) then
-                                                 "F.div_prec " ^ (string_of_int(p))^  "(" ^(v1)^") (" ^(v2)^")"
+                                                 "(F.div_prec " ^ (string_of_int(p))^  "(" ^(v1)^") " ^(v2)^")"
                                                else if ((String.compare (String.sub f 0 3) "+I_")=0) then
                                                       "("^v1^" + "^v2^")"
                                                     else if ((String.compare (String.sub f 0 3) "+I_")=0) then
