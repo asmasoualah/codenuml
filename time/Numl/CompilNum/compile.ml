@@ -109,10 +109,10 @@ let rec genCaml e = match e with
 | Id(x) ->  x
 | Lambda(x,e,t) -> "(fun "^ x ^" -> "^(genCaml e)^")"
 
-| Cond(be,e1,e2) -> "let v1 = "^(genCaml be)^ " in\nlet v2 = "^(genCaml e1)^" in\nlet v3 = "^(genCaml e2)^ " in\n(if v1 then\n v2\n else\n v3)"
+| Cond(be,e1,e2) -> "let v1 = "^(genCaml be)^ " in\nlet v2 = "^(genCaml e1)^" in\nlet v3 = "^(genCaml e2)^ " in\n(if v1 then\n v2\n else\n v3)\n"
 
 | Let(x,e1,e2) -> "let v1 =" ^(genCaml e1)^ "in\n
-                  let v2 =" ^(genCaml e2)^ "in\n
+                   let v2 =" ^(genCaml e2)^ "in\n
                      (let x = v1 in v2)"
 
 | Pair(e1,e2) -> let v1= (genCaml e1) in 
@@ -125,7 +125,9 @@ let rec genCaml e = match e with
 | Second(e) -> "let v1 = "^(genCaml e)^ " in (snd v1)"
 
 | App(Id(f),e) -> "let v1 = "^(genCaml e)^ " in ( sqrt v1)"
-                   
+| Car(e) -> "let v1 = " ^ (genCaml e)^ " in (List.hd v1)"
+| Cdr(e) -> "let v1 = " ^ (genCaml e)^ " in (List.tl v1)"
+                  
 | Nil -> "[]"
 
 | _ -> "error : "^(fst (printExpression e []))
