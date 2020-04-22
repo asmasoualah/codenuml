@@ -124,6 +124,9 @@ let rec genGmp e = match e with
 | First(e) -> let v1= (genGmp e) in("fst "^v1)
 | Second(e) -> let v1= (genGmp e) in ("snd "^v1)
 | App(Id(f),e) -> "let v1 = "^(genGmp e)^ " in ( sqrt v1)"
+| Car(e) -> "let v1 = " ^ (genGmp e)^ " in (List.hd v1)"
+| Cdr(e) -> "let v1 = " ^ (genGmp e)^ " in (List.tl v1)"
+| Nil -> "[]"
 | _ -> "error : "^(fst (printExpression e [])) 
 
 
