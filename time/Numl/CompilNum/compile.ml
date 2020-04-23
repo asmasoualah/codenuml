@@ -105,32 +105,34 @@ let rec genCaml e = match e with
                                in (s''')
 
 | Int(e) -> string_of_int(e)
-| Bool(e) -> (if e then "true" else "false")
+| Bool(e) -> (if e then "true" else "false\n")
 | Id(x) ->  x
-| Lambda(x,e,t) -> "(fun "^ x ^" -> "^(genCaml e)^")"
+| Lambda(x,e,t) -> "(fun "^ x ^" -> "^(genCaml e)^")\n"
 
-| Cond(be,e1,e2) -> "let v1 = "^(genCaml be)^ " in\nlet v2 = "^(genCaml e1)^" in\nlet v3 = "^(genCaml e2)^ " in\n(if v1 then\n v2\n else\n v3)\n"
+| Cond(be,e1,e2) -> "let v1 =" ^(genCaml be)^ " in\nlet v2 = "^(genCaml e1)^" in\nlet v3 = "^(genCaml e2)^ " in\n(if v1 then\n v2\n else\n v3)\n" 
 
-| Let(x,e1,e2) -> "let v1 =" ^(genCaml e1)^ "in\n
-                   let v2 =" ^(genCaml e2)^ "in\n
-                     (let x = v1 in v2)"
-
+| Let(x,e1,e2) -> let v1 = (genCaml e1) in
+                  let v2 = (genCaml e2) in
+                        ("let "^x^" = "^v1^" in\n "^v2^"\n")
 | Pair(e1,e2) -> let v1= (genCaml e1) in 
                  let v2= (genCaml e2) in
-                   "("^v1^","^v2^ ")"
-                  
-                   
+                     "("^v1^","^v2^ ")"
+                                    
+| First(e) -> "let v1 = " ^ (genCaml e)^ " in (fst v1)\n"
+| Second(e) -> "let v1 = "^(genCaml e)^ " in (snd v1)\n"
 
-| First(e) -> "let v1 = " ^ (genCaml e)^ " in (fst v1)"
-| Second(e) -> "let v1 = "^(genCaml e)^ " in (snd v1)"
+| App(Id(f),e) -> "let v1 = "^(genCaml e)^ " in ( sqrt v1)\n"
+(*| Cons(e1,e2) -> let v1 = (genCaml e1) in
+                   let v2 = (genCaml e2) in
+                    "["^v1^";"^v2^ "]"*) 
 
-| App(Id(f),e) -> "let v1 = "^(genCaml e)^ " in ( sqrt v1)"
-| Car(e) -> "let v1 = " ^ (genCaml e)^ " in (List.hd v1)"
-| Cdr(e) -> "let v1 = " ^ (genCaml e)^ " in (List.tl v1)"
-                  
+| Cons(e1,e2) -> "let v1 =" ^(genCaml e1)^ " in\nlet v2 = "^(genCaml e2)^" in\n (v1 :: v2)"                 
+| Car(e) -> "let v1 = " ^ (genCaml e)^ " in (List.hd v1)\n"
+| Cdr(e) -> "let v1 = " ^ (genCaml e)^ " in (List.tl v1)\n"
+
 | Nil -> "[]"
-
 | _ -> "error : "^(fst (printExpression e []))
+
 
 
 
