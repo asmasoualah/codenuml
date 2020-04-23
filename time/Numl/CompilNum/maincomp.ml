@@ -88,6 +88,7 @@ let rec iterCmdList cl fic fig = match cl with
                                              let _ = output_string fic s in
                                              let k = "let "^x^" ="^(genGmp e) in
                                              let _ = output_string fig k in
+                                             let _ = typeEnv := (setEnv x t' !typeEnv) in
                                                 iterCmdList cs fic fig
 
               | TopRecAssign(x,e) -> let typeEnv' = copyTypeEnv !typeEnv[] in
@@ -99,6 +100,7 @@ let rec iterCmdList cl fic fig = match cl with
                                              let _ = output_string fic s in
                                              let k = "let rec"^x^" ="^(genGmp e) in
                                              let _ = output_string fig k in
+                                             let _ = typeEnv := (setEnv x t'' !typeEnv) in
                                                 iterCmdList cs fic fig
                                                
         
