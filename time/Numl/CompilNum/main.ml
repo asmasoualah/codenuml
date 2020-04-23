@@ -91,56 +91,45 @@ let _ =
 		             let typeEnv' = copyTypeEnv !typeEnv [] in
 			     let t = typeCheck e typeEnv' varEnv in
                              let t' = evalPart t in 
-                             (*********************ICICICICICICICICI***********************)
                              let s = genCaml e in
                              let fic = open_out"comp.ml" in
                              let _ = output_string fic s in
                              let _ = close_out fic in
-                            (**************************************************fichier GMP*)
                              let k = genGmp e in
                              let fic = open_out"Gomp.ml" in
                              let _ = output_string fic k in
                              let _ = close_out fic in
-                             (**************************************************************)
                              let v = eval e !varEnv in 
                                print_string ("- : "^(printExpr t')^" = "^(printExpr2 v t')) ; flush stdout 
              | TopAssign(x,e) -> let typeEnv' = copyTypeEnv !typeEnv [] in
 			         let t = typeCheck e typeEnv' varEnv in
                                  let t' = evalPart t in
-                                  (*********************ICICICICICICICICI***********************)
                                  let s = "let "^x^" = "^(genCaml e) in
                                  let fic = open_out "comp.ml" in
                                  let _ = output_string fic s in
                                  let _ =  close_out fic in
-                                (************************************************Fichier GMP*)
                                  let k = "let "^x^" = "^(genGmp e) in
                                  let fic = open_out "Gomp.ml" in
                                  let _ = output_string fic k in
                                  let _ =  close_out fic in
-
-                                (****************************************************************)
-
                                  let v = eval e !varEnv in
                                    varEnv := (setEnv x v !varEnv) ; 
                                    typeEnv := (setEnv x t' !typeEnv) ;
                                    print_string ("val "^x^" : "^(printExpr t')^" = "^(printExpr2 v t')) ; flush stdout
-             | TopRecAssign(x,e) -> (*  !!! e est la fonction fun x -> if x then x else f x et non pas le body *)
-                                    let typeEnv' = copyTypeEnv !typeEnv [] in
-				    let typeEnv'' = typeEnv'(*setEnv x (newTypeVar ()) typeEnv'*)  in
+            
+            | TopRecAssign(x,e) ->  let typeEnv' = copyTypeEnv !typeEnv [] in
+				    let typeEnv'' = typeEnv'  in
                                     let t = recTypeCheck x e typeEnv'' varEnv in 
                                     let t' = if (isRec t []) then unRec t [] else t in
                                     let t'' = evalPart t' in
-                                    (*********************ICICICICICICICICI***********************)
                                     let s = "let rec"^x^" = "^(genCaml e) in
                                     let fic = open_out "comp.ml" in
                                     let _ = output_string fic s in 
                                     let _ = close_out fic in
-                                   (*************************************************Fichier Gmp*)
                                     let k = "let rec"^x^" = "^(genGmp e) in
                                     let fic = open_out "Gomp.ml" in
                                     let _ = output_string fic k in 
                                     let _ = close_out fic in
-                                   (***************************************************************)
                                      (match t'' with
 					 Pi(_,t1,t2) -> ((*  unify t1 t2 ; *) 
                                                          let v = eval e !varEnv 
