@@ -108,14 +108,15 @@ let rec genGmp e = match e with
 | Int(e) -> string_of_int(e)
 | Bool(e) -> (if e then "true" else "false")
 | Id(x) ->  x
+| Lambda(x,e,t) -> "(fun "^ x ^" -> "^(genGmp e)^")\n"
 | Cond(be,e1,e2) -> let v1 =(genGmp be) in
                     let v2= (genGmp e1) in
                     let v3= (genGmp e2) in
-                        ("if" ^v1^ "then\n"^ v2^"\n else\n" ^v3)
+                        ("if" ^v1^ "then\n"^ v2^"\n else\n" ^v3^"\n")
 
 | Let(x,e1,e2) -> let v1 = (genGmp e1) in
                   let v2 = (genGmp e2) in
-                      ("let "^x^" = "^v1^" in "^v2)
+                      ("let "^x^" = "^v1^" in\n "^v2^"\n")
 
 | Pair(e1,e2) -> let v1= (genGmp e1) in 
                  let v2= (genGmp e2) in
@@ -123,9 +124,9 @@ let rec genGmp e = match e with
 
 | First(e) -> let v1= (genGmp e) in("fst "^v1)
 | Second(e) -> let v1= (genGmp e) in ("snd "^v1)
-| App(Id(f),e) -> "let v1 = "^(genGmp e)^ " in ( sqrt v1)"
-| Car(e) -> "let v1 = " ^ (genGmp e)^ " in (List.hd v1)"
-| Cdr(e) -> "let v1 = " ^ (genGmp e)^ " in (List.tl v1)"
+| App(Id(f),e) -> let v1 = (genGmp e)  in ("sqrt "^v1)
+| Car(e) -> let v1 = (genGmp e) in ("List.hd" ^v1)
+| Cdr(e) -> let v1 = (genGmp e) in ("List.tl" ^v1)
 | Nil -> "[]"
 | _ -> "error : "^(fst (printExpression e [])) 
 
