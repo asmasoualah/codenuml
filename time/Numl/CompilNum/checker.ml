@@ -502,11 +502,18 @@ let rec typeApp e1 e2 env valEnv =
 	        ) ; 
 	  if (isFloatOp e1) then 
 		(match t2' with
-			TFloat(s,u,p) ->(* (*print_string*) ((getFloatOpName e1)) ; *)opEnvUP := setEnv (getFloatOpName e1) (getExprInt !p) !opEnvUP  
-		      | _ -> opEnvUP := setEnv (getFloatOpName e1) (0) !opEnvUP 
+                     TFloat(s,u,p) -> 
+                   (try (
+                      opEnvUP := setEnv (getFloatOpName e1) (getExprInt !p) !opEnvUP  
+                       )
+                    with
+                         | _ -> ()
+
+                   )
+                      | _ -> ()
+			
 	        ) ;
 
-(*          if (isPrimitive e1) then updateValEnv (getPrimitiveName e1) valEnv t' else () ;*)
           t') 
      with Error(s) -> let tf = Pi(newVar (),t2',t') 
                       in raise (RecTypeError(tf,s))
