@@ -107,7 +107,7 @@ let rec genCaml e = match e with
 | Int(e) -> string_of_int(e)
 | Bool(e) -> (if e then "true" else "false\n")
 | Id(x) ->  x
-| Lambda(x,e,t) -> "(fun "^ x ^" -> "^(genCaml e)^")\n"
+| Lambda(x,t,e) -> "(fun "^ x ^" -> "^(genCaml e)^")\n"
 
 | Cond(be,e1,e2) -> "let v1 =" ^(genCaml be)^ " in\nlet v2 = "^(genCaml e1)^" in\nlet v3 = "^(genCaml e2)^ " in\n(if v1 then\n v2\n else\n v3)\n" 
 
