@@ -108,7 +108,7 @@ let rec genGmp e = match e with
 | Int(e) -> string_of_int(e)
 | Bool(e) -> (if e then "true" else "false")
 | Id(x) ->  x
-| Lambda(x,e,t) -> "(fun "^ x ^" -> "^(genGmp e)^")\n"
+| Lambda(x,t,e) -> "(fun "^ x ^" -> "^(genGmp e)^")\n"
 | Cond(be,e1,e2) -> let v1 =(genGmp be) in
                     let v2= (genGmp e1) in
                     let v3= (genGmp e2) in
@@ -136,5 +136,5 @@ let rec genGmp e = match e with
 
 
 
-(*let (u,p) = getEnv f !opEnvUp in*)
+
  
