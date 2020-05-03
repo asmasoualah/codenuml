@@ -126,6 +126,7 @@ let _ =
            | Parsing.Parse_error -> print_string ("Parse error at line "^(string_of_int (!codeLine))^"\n")
            | Error(e) -> print_string ("Error: "^e^"\n")
            | RecTypeError(_,e) -> print_string ("\nError: "^e^"\n")
+           | e -> raise e
          ;;
 
 
